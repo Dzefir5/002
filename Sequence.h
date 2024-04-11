@@ -11,13 +11,13 @@ public:
     virtual T GetFirst() const =0;
     virtual T GetLast() const=0;
     virtual T Get( int index ) const =0;
-    virtual void Set( const T& value,int index )=0;
+    virtual Sequence<T>* Set( const T& value,int index )=0;
     virtual Sequence<T>* GetSubsequence( int startIndex, int endIndex )const  =0;
     virtual int GetLength() const =0;
-    virtual void Append( const T& item )=0;
-    virtual void Prepend( const T& item )=0;
-    virtual void InsertAt( const T& item, int index )=0;
-    virtual void RemoveAt( int index )=0;
+    virtual Sequence<T>*  Append( const T& item )=0;
+    virtual Sequence<T>*  Prepend( const T& item )=0;
+    virtual Sequence<T>*  InsertAt( const T& item, int index )=0;
+    virtual Sequence<T>*  RemoveAt( int index )=0;
     virtual Sequence <T>* Concat( Sequence<T> &seq ) const = 0; 
 
     virtual T& operator[](int index) = 0 ;
@@ -50,48 +50,45 @@ public:
     }
 
     T GetFirst() const override{
-        return (this->data)->Get(0);  
+        return (Instance()->data)->Get(0);  
     }
     T GetLast() const override{
-        return (this->data)->Get(data->GetSize()-1);
+        return (Instance()->data)->Get(data->GetSize()-1);
     }
     T Get(int index) const override{
-        return (this->data)->Get(index);
+        return (Instance()->data)->Get(index);
     }
-    void Set(const T& value,int index) override{
-        Instance()->data->Set(value,index);
+    ArraySequence<T>* Set(const T& value,int index) override{
+        ArraySequence<T>* result=Instance();
+        result->data->Set(value,index);
+        return result;
     }
     int GetLength() const override{
-        return this->data->GetSize();
-    }
-    /*ArraySequence<T>* GetSubsequence(int startIndex, int endIndex) const override{
-        if(startIndex<0||endIndex<startIndex) throw std::invalid_argument("");
-        if(endIndex>=data->GetSize()) throw std::out_of_range("");
-        ArraySequence<T>* result = new ArraySequence<T>(&(*data)[startIndex],endIndex-startIndex+1);
-        return result;
-    }*/
-
-    void Append(const T& item) override{
-        Instance()->data->Resize(data->GetSize()+1,0);
-       (*(Instance()->data))[data->GetSize()-1] = item;
-    }
-    void Prepend(const T& item)  override{
-        data->Resize(data->GetSize()+1,1);
-        (*(Instance()->data))[0] = item;
-    }
-    void InsertAt(const T& item, int index) override{
-        Instance()->data->InsertAt(item,index);
-    }
-    void RemoveAt(int index) override{
-        Instance()->data->RemoveAt(index);
+        return Instance()->data->GetSize();
     }
 
-    /*ArraySequence<T>* Concat( Sequence <T>& array) const override{
-        //DynamicArray<T>* buf = data->Concat(array->data);
-        ArraySequence<T>* result = new ArraySequence<T>(nullptr);
-        result->data=data->Concat(static_cast<ArraySequence<T>&>(array).data);
+    ArraySequence<T>* Append(const T& item) override{
+        ArraySequence<T>* result=Instance();
+        result->data->Resize(data->GetSize()+1,0);
+        (*(result->data))[data->GetSize()-1] = item;
         return result;
-    } */
+    }
+    ArraySequence<T>* Prepend(const T& item)  override{
+        ArraySequence<T>* result=Instance();
+        result->data->Resize(data->GetSize()+1,1);
+        (*(result->data))[0] = item;
+        return result;
+    }
+    ArraySequence<T>* InsertAt(const T& item, int index) override{
+        ArraySequence<T>* result=Instance();
+        result->data->InsertAt(item,index);
+        return result;
+    }
+    ArraySequence<T>* RemoveAt(int index) override{
+        ArraySequence<T>* result=Instance();
+        result->data->RemoveAt(index);
+        return result;
+    }
 
     void PrintSequence() const {
         std::cout<<std::endl;
@@ -121,12 +118,12 @@ private:
     }
 public:
     using ArraySequence<T>::ArraySequence;
-    /*MutableArraySequence<T>* Concat( Sequence <T>& array) const {
-        return static_cast<MutableArraySequence<T>*>(Instance()->Concat(array));
-    } */
     MutableArraySequence<T>* Concat( Sequence <T>& array) const override{
         MutableArraySequence<T>* result = new MutableArraySequence<T>(nullptr);
-        result->data=this->data->Concat(static_cast<MutableArraySequence<T>&>(array).data);
+        for(int i=0;i<array.GetLength();i++){
+            result->Append(array[i]);
+        }
+        //result->data=this->data->Concat(static_cast<MutableArraySequence<T>&>(array).data);
         return result;
     } 
     MutableArraySequence<T>* GetSubsequence(int startIndex, int endIndex) const override{
@@ -135,10 +132,6 @@ public:
         MutableArraySequence<T>* result = new MutableArraySequence<T>(&(*(this->data))[startIndex],endIndex-startIndex+1);
         return result;
     }
-    /*MutableArraySequence<T>* GetSubsequence(int startIndex, int endIndex) const {
-        return static_cast<MutableArraySequence<T>*>(Instance()->GetSubsequence(startIndex,endIndex));
-    }*/
-
 };
 
 
@@ -157,7 +150,10 @@ public:
     using ArraySequence<T>::ArraySequence;
     ImmutableArraySequence<T>* Concat( Sequence <T>& array) const override{
         ImmutableArraySequence<T>* result = new ImmutableArraySequence<T>(nullptr);
-        result->data=this->data->Concat(static_cast<ImmutableArraySequence<T>&>(array).data);
+        for(int i=0;i<array.GetLength();i++){
+            result->Append(array[i]);
+        }
+        //result->data=this->data->Concat(static_cast<ImmutableArraySequence<T>&>(array).data);
         return result;
     } 
     ImmutableArraySequence<T>* GetSubsequence(int startIndex, int endIndex) const override{
@@ -175,7 +171,8 @@ template <typename T>
 class ListSequence : public Sequence<T>{
 protected:
     LinkedList<T>* data;
-
+    virtual  ListSequence<T>* Instance()=0 ;
+    virtual const  ListSequence<T>* Instance() const =0;
 public:
     ListSequence (){
         data=new LinkedList<T>();
@@ -194,59 +191,116 @@ public:
     }
 
     T GetFirst() const override{
-        return data->GetFirst();
+        return Instance()->data->GetFirst();
     }
     T GetLast() const override{
-        return data->GetLast();
+        return Instance()->data->GetLast();
     }
     T Get(int index) const override{
-        return data->Get(index);
+        return Instance()->data->Get(index);
     }
 
-    void Set(const T& value,int index) override{
-        data->Set(value,index);
-    }
-
-    ListSequence<T>* GetSubsequence(int startIndex, int endIndex) override{
-        ListSequence<T>* result = new ListSequence<T>(data->GetSubList(startIndex,endIndex));
+    LinkedList<T>* Set(const T& value,int index) override{
+        LinkedList<T>* result = Instance();
+        result->data->Set(value,index);
         return result;
     }
+
     int GetLength() const override{
-        return data->GetLength();
+        return Instance()->data->GetLength();
     }
-    void Append(const T& item) override{
-        data->Append(item);
-    }
-    void Prepend(const T& item) override{
-        data->Prepend(item);
-    }
-    void InsertAt(const T& item, int index) override{
-        data->InsertAt(item,index);
-    }
-    void RemoveAt(int index) override{
-        data->RemoveAt(index);
-    }
-
-    ListSequence<T>* Concat(Sequence <T>& list) const override{
-        //DynamicArray<T>* buf = data->Concat(array->data);
-        ListSequence<T>* result = new ListSequence<T>(nullptr);
-        result->data=data->Concat(static_cast<ListSequence<T>&>(list).data);
+    LinkedList<T>* Append(const T& item) override{
+        LinkedList<T>* result = Instance();
+        result->data->Append(item);
         return result;
-    } 
+    }
+    LinkedList<T>* Prepend(const T& item) override{
+        LinkedList<T>* result = Instance();
+        result->data->Prepend(item);
+        return result;
+    }
+    LinkedList<T>* InsertAt(const T& item, int index) override{
+        LinkedList<T>* result = Instance();
+        result->data->InsertAt(item,index);
+        return result;
+    }
+    LinkedList<T>* RemoveAt(int index) override{
+        LinkedList<T>* result = Instance();
+        result->data->RemoveAt(index);
+        return result;
+    }
 
     void PrintSequence(){
-        std::cout<<endl;
+        std::cout<<std::endl;
         for(int i =0;i<data->GetSize();i++){
             std::cout<<data[i]<<"_";
         }
-        std::cout<<endl;
+        std::cout<<std::endl;
     }
 
     T& operator[](int index) override{
-        return (*data)[index];
+        return (*(Instance()->data))[index];
     }
 
     virtual ~ListSequence<T>(){
         delete data;
+    }
+};
+
+template<typename T>
+class MutableListSequence : public ListSequence<T>{
+private:
+    ListSequence<T>* Instance() override {
+        return static_cast<ListSequence<T>*>(this);
+    }
+    const ArraySequence<T>* Instance() const override  {
+        return static_cast<const ListSequence<T>*>(this);
+    }
+public:
+    using ListSequence<T>::ListSequence;
+    MutableListSequence<T>* Concat( Sequence <T>& array) const override{
+        MutableListSequence<T>* result = new MutableListSequence<T>();
+        for(int i=0;i<array.GetLength();i++){
+            static_cast<MutableArraySequence<T>*>(result)->Append(array[i]);
+        }
+        
+        //result->data=this->data->Concat(static_cast<MutableListSequence<T>&>(array).data);
+        return result;
+    } 
+    MutableListSequence<T>* GetSubsequence(int startIndex, int endIndex) const override{
+        if(startIndex<0||endIndex<startIndex) throw std::invalid_argument("");
+        if(endIndex>=this->data->GetSize()) throw std::out_of_range("");
+        MutableListSequence<T>* result = new MutableListSequence<T>(this->data->GetSubList(startIndex,endIndex));
+        return result;
+    }
+};
+
+
+template<typename T>
+class ImmutableListSequence : public ListSequence<T>{
+private:
+    ListSequence<T>* Instance() override {
+        ImmutableListSequence<T>* result = new ImmutableListSequence<T>(*this);
+        return result;
+    }
+    const ListSequence<T>* Instance() const override  {
+        const ImmutableListSequence<T>* result = new ImmutableListSequence<T>(*this);
+        return result;
+    }
+public:
+    using ListSequence<T>::ListSequence;
+    ImmutableListSequence<T>* Concat( Sequence <T>& array) const override{
+        ImmutableListSequence<T>* result = new ImmutableListSequence<T>();
+        for(int i=0;i<array.GetLength();i++){
+            static_cast<MutableListSequence<T>*>(result)->Append(array[i]);
+        }
+        //result->data=this->data->Concat(static_cast<ImmutableListSequence<T>&>(array).data);
+        return result;
+    } 
+    ImmutableListSequence<T>* GetSubsequence(int startIndex, int endIndex) const override{
+        if(startIndex<0||endIndex<startIndex) throw std::invalid_argument("");
+        if(endIndex>=this->data->GetSize()) throw std::out_of_range("");
+        ImmutableListSequence<T>* result = new ImmutableListSequence<T>(this->data->GetSubList(startIndex,endIndex));
+        return result;
     }
 };
