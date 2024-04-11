@@ -77,6 +77,11 @@ public:
         if(size<=0) throw std::out_of_range("Getter call in empty collection");
         return elements[index];
     }
+    const T& operator[](int index) const{
+        if(size<=index)throw std::out_of_range("Invalid index");
+        if(size<=0) throw std::out_of_range("Getter call in empty collection");
+        return elements[index];
+    }
     
     DynamicArray<T>* Concat (const DynamicArray<T>* array){
         if(array==nullptr) throw std::invalid_argument("invalid nullptr argument in concat fucntion");
