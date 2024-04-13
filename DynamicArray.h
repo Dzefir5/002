@@ -15,7 +15,7 @@ private:
     }
 public:
     //Constructors
-    DynamicArray():size(0),elements(nullptr){};
+    DynamicArray():size(0),elements(nullptr){} ;
     DynamicArray(int size):size(size),elements(nullptr){
         if(size<0) throw std::invalid_argument("invalid input in constructor");
         if(size>0) elements=new T[size];
@@ -45,9 +45,14 @@ public:
         elements[index]=value;
     }
     void Resize(int newSize,int offset){
-        if(newSize<=0||offset<=0||offset+size>newSize)throw std::invalid_argument("Invalid input in Resize fucntion");
+        if(newSize<0||offset<0||offset+size>newSize)throw std::invalid_argument("Invalid input in Resize fucntion");
+        if(newSize==0){
+            delete[] elements;
+            elements=nullptr;
+            return;
+        }
         T* buf = new T[newSize];
-        memcpy((void*)(buf+offset),(void*)elements,sizeof(T)*std::min(size,newSize));
+        if(size!=0) memcpy((void*)(buf+offset),(void*)elements,sizeof(T)*std::min(size,newSize));
         delete[] elements;
         elements=buf;
         size=newSize;
@@ -56,14 +61,22 @@ public:
         if(index<0||index>size) throw std::invalid_argument("");
         size++;
         T* buf = new T[size];
-        memcpy((void*)(buf),(void*)elements,sizeof(T)*index);
+        if(elements!=nullptr){
+            memcpy((void*)(buf),(void*)elements,sizeof(T)*index);
+            memcpy((void*)(buf+index+1),(void*)(elements+index),sizeof(T)*(size-index)); 
+        }
         buf[index]=item;
-        memcpy((void*)(buf+index+1),(void*)(elements+index),sizeof(T)*(size-index));
         delete[] elements;
         elements=buf;
     }
     void RemoveAt(int index) {
         if(index<0||index>=size) throw std::invalid_argument("");
+        if(size==1){
+            delete[] elements;
+            elements=nullptr;
+            size--;
+            return;
+        }
         T* buf = new T[size-1];
         memcpy((void*)(buf),(void*)elements,sizeof(T)*index);
         memcpy((void*)(buf+index),(void*)(elements+index+1),sizeof(T)*(size-index-1));

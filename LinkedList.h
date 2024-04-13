@@ -4,10 +4,10 @@
 template <typename T>
 class Node{
 public:
-    Node* next=nullptr;
+    Node<T>* next=nullptr;
     T data;
-    Node(T indata):data(indata),next(NULL){};
-    Node(T indata,T* ptr):data(indata),next(ptr){};
+    Node(T indata):next(nullptr),data(indata){};
+    Node(T indata,Node<T>* ptr):data(indata),next(ptr){};
 };
 
 
@@ -24,16 +24,22 @@ private:
         std::swap(tail,toSwap.tail);
     }
 public:
-    LinkedList ():head(NULL),tail(NULL),size(0){};
-    LinkedList (T* items, int count):size(count){
+    LinkedList (){};
+    LinkedList (T* items, int count){
         if(count<0) throw std::invalid_argument("invalid argument in constuctor");
         for(int i=0;i<count,i++){
             Append(items[i]);
         }
     }
+    LinkedList (const T& elemFill, int count){
+        if(count<0) throw std::invalid_argument("invalid argument in constuctor");
+        for(int i=0;i<count;i++){
+            Append(elemFill);
+        }
+    }
     LinkedList (const LinkedList<T>& list ):LinkedList(){
         Node<T>* currentToCopy =list.head;
-        while(currentToCopy!=NULL){
+        while(currentToCopy!=nullptr){
             Append(currentToCopy->data);
             currentToCopy=currentToCopy->next;
         }
@@ -53,15 +59,15 @@ public:
         return tail->data;
     }
     T Get(int index) const {
-        if(index<0||index>=size) throw std::std::out_of_range("Getter call with wrong index ");
+        if(index<0||index>=size) throw std::out_of_range("Getter call with wrong index ");
         Node<T>* current = head;
-        for(int i=0;i<index-1;i++){
+        for(int i=0;i<index;i++){
             current=current->next;
         }
         return current->data;
     }
     void Set(const T& value ,int index)  {
-        if(index<0||index>=size) throw std::std::out_of_range("Setter call with wrong index ");
+        if(index<0||index>=size) throw std::out_of_range("Setter call with wrong index ");
         Node<T>* current = head;
         for(int i=0;i<index-1;i++){
             current=current->next;
@@ -82,12 +88,13 @@ public:
             buf->Append(current->data);
             current=current->next;
         }
+        return buf;
     }
 
     int GetLength() const{ return size; }
 
     void Append(const T& item){
-        if(head==nullptr){
+        if(tail==nullptr){
             Node<T>* buf = new Node<T>(item);
             head=buf;
             tail=buf;
@@ -114,58 +121,61 @@ public:
 
     void InsertAt(const T& item, int index){
         if(index>size||index<0) throw std::out_of_range("Invalid index in insert function");
-        if(head==nullptr){
-            Append(item);
-            size++;
-            return 0;
-        }
-        Node<T> current(head->data,head);
-        for(int i=0;i<index;i++){
+        Node<T>* current=head;
+        for(int i=0;i<index-1;i++){
             current=current->next;
         }
-        if(current->next==head){
+        if(index==0){
             Prepend(item);
             size++; 
-            return 0;
+            return ;
         } 
-        if(current->next==tail){
+        if(index==size){
             Append(item);
             size++;
-            return 0;
+            return ;
         }
-        Node<T>* insert = new Node(item);
+        Node<T>* insert = new Node<T>(item);
         insert->next=current->next;
         current->next = insert;
         size++;
-        return 0;
+        return ;
     }
 
    void RemoveAt(int index){
         if(index>=size||index<0) throw std::out_of_range("Invalid index in insert function");
-        Node<T> current(head->data,head);
-        for(int i=0;i<index;i++){
-            current=current->next;
-        }
-        if(current->next==head){
+        Node<T>* current=head;
+        if(size==0){
+            delete head;
+            head=nullptr;
+            tail=nullptr;
+            size--;
+            return ;
+        } 
+        if(index==0){
             Node<T>* buf = head;
-            head = head->next
+            head = head->next;
             delete buf;
             size--;
-            return 0;
+            return ;
         } 
-        if(current->next==tail){
+        if(index==size-1){
             Node<T>* buf = tail;
             tail = current;
             current->next=nullptr;
             delete buf;
             size--;
-            return 0;
+            return ;
         }
+        for(int i=0;i<index-1;i++){
+            current=current->next;
+        }
+        
         Node<T>* buf = current->next;
         current->next=buf->next;
         delete buf;
         size--;
-        return 0;
+        return ;
     }
 
     LinkedList<T>* Concat(const LinkedList<T>* list){
@@ -223,8 +233,8 @@ public:
     
     virtual ~LinkedList(){
         if(head!=nullptr){
-            Node* current = head;
-            Node* buf;
+            Node<T>* current = head;
+            Node<T>* buf;
             while(current->next!=nullptr){
                 buf = current->next;
                 delete current;
