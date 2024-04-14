@@ -123,8 +123,8 @@ int main(){
 
 
     std::cout<<"DIFFERENT SEQUENCE TEST"<<std::endl;
-    MutableListSequence<int> testL1(2,4);
-    MutableArraySequence<int> testA1(4,4);
+    MutableListSequence<int> testL1(2,5);
+    MutableArraySequence<int> testA1(4,5);
     MutableArraySequence<int>* testArrayICONCAT =testA1.Concat(testL1);
     MutableListSequence<int>* testlistICONCAT =testL1.Concat(testA1);
     MutableArraySequence<int>* testA2 = new MutableArraySequence<int>(testL1);
@@ -140,8 +140,45 @@ int main(){
     testArrayICONCAT->PrintSequence();
 
     testA1.PrintSequence();
-    testA1[2]=5;
+    testA1[0]=1;
+    testA1[1]=2;
+    testA1[2]=3;
+    testA1[3]=4;
+    testA1[4]=5;
     testA1.PrintSequence();
+    /*
+   std::tuple <int,double,char> test = zipElement<int,double,char>(1,1.0,'a');
+    std::cout << std::get<0>(test) <<std::endl;
+    std::cout << std::get<1>(test) <<std::endl;
+    std::cout << std::get<2>(test) <<std::endl;
+    */
+    //addToVar(1,2,'a');
+    MutableArraySequence<int> test_1(1,2);
+    test_1[0]=1;
+    test_1[1]=2;
+    MutableArraySequence<int> test_2(2,2);
+    test_2[0]=3;
+    test_2[1]=4;
+    MutableArraySequence<int> test_3(3,2);
+    test_3[0]=5;
+    test_3[1]=6;
+    int counter = 0;
+    getArgsSize(counter , 1,2,3);
+    std::cout << counter <<std::endl;
+    MutableArraySequence<std::tuple<int,int,int>>* test_4 = 
+        static_cast<MutableArraySequence<std::tuple<int,int,int>>*>( zip<int,int,int>(test_1,test_2,test_3) );
+    std::cout << counter <<std::endl;
+    //printTuple( (test_4->Get(1)) );
+    std::cout << std::get<0>(test_4->Get(1)) <<std::endl;
+    std::cout << std::get<1>(test_4->Get(1)) <<std::endl;
+    std::cout << std::get<2>(test_4->Get(1)) <<std::endl;
+    /*
+    auto res = reinterpret_cast< MutableListSequence<std::tuple<int,int,int>>&> ( zip(testA1,testA1,testA1));
+    std::cout << std::get<0>(res.Get(1)) <<std::endl;
+    std::cout << std::get<1>(res.Get(1)) <<std::endl;
+    std::cout << std::get<2>(res.Get(1)) <<std::endl;*/
+ 
+
     //testlist12.PrintSequence();
     /*ImmutableArraySequence<int>* testlist13 = testlist11.Concat(testlist12);
     testlist13->PrintSequence();
