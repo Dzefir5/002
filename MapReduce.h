@@ -2,8 +2,7 @@
 #include "ListSequence.h"
 #include "ArraySequence.h"
 #include <iostream>
-#include <tuple>
-#include <cstdarg>
+
 
 template <typename T,typename U,typename ... Types>
 Sequence<U>& map(const Sequence<T>& seq, U (*func)( T,const Types& ...),const Types&...tail){
@@ -137,17 +136,4 @@ Tuple_< MutableArraySequence<TypeForTuple>*...>*  unzip(Sequence< Tuple_< TypeFo
 */
 
 
-template <size_t I = 0, typename... Tail> 
-typename std::enable_if_t<( I >= sizeof...(Tail) )> printTuple(Tuple_<Tail...> tup)//enable if создаёт тип при условии 
-{
-    return;
-}
-template <size_t I = 0, typename... Tail> 
-typename std::enable_if_t<( I < sizeof...(Tail) )>  printTuple(Tuple_<Tail...> tup)
-{
-    std::cout << Get<I>(tup) << " ";
-    printTuple<I + 1>(tup);
-}
-template <typename ... TypeForTuple> 
-using Tuple_=Tuple<0,TypeForTuple...>;
 

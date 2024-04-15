@@ -11,7 +11,7 @@ protected:
     virtual ArraySequence<T>* Instance()=0 ;
     virtual const ArraySequence<T>* Instance() const =0;
 
-    ArraySequence<T>* AppendWithoutInstance(const T& item) {
+    ArraySequence<T>* appendWithoutInstance(const T& item) {
         ArraySequence<T>* result=this;
         result->data->Resize(data->GetSize()+1,0);
         (*(result->data))[data->GetSize()-1] = item;
@@ -33,7 +33,7 @@ public:
     ArraySequence (const Sequence<T>& seq ){
         this->data = new DynamicArray<T>();
         for(int i =0;i<seq.GetLength();i++){
-            AppendWithoutInstance(seq.Get(i));
+            appendWithoutInstance(seq.Get(i));
         }
     }
     T GetFirst() const override{
@@ -93,6 +93,7 @@ public:
 		delete data;
 	}
 };  
+
 
 template<typename T>
 class MutableArraySequence : public ArraySequence<T>{

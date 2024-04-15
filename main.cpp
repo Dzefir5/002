@@ -161,7 +161,7 @@ int main(){
     Tuple_<int,double,char> tup (1,2.4,'u');
     Tuple_<int,int,double,char>* tups = new Tuple_<int,int,double,char>(3,713,9.0,'f');
     printTuple( *tups);
-     printTuple( tup);
+    printTuple( tup);
     std::cout<<Get<0>(tup)<<std::endl;
                         //ZIP
     std::cout<<"ZIP TEST"<<std::endl;

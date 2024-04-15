@@ -11,7 +11,7 @@ protected:
     virtual  ListSequence<T>* Instance()=0 ;
     virtual const  ListSequence<T>* Instance() const =0;
 
-    ListSequence<T>* AppendWithoutInstance(const T& item) {
+    ListSequence<T>* appendWithoutInstance(const T& item) {
         ListSequence<T>* result=this;
         result->data->Append(item);
         return result;
@@ -35,7 +35,7 @@ public:
     ListSequence (const Sequence<T>& seq){
         this->data = new LinkedList<T>();
         for(int i =0;i<seq.GetLength();i++){
-            AppendWithoutInstance(seq.Get(i));
+            appendWithoutInstance(seq.Get(i));
         }
     }
 

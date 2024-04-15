@@ -1,3 +1,18 @@
+
+
+//реализовать enable if
+template <bool TypeBool,typename T = void>
+struct Enable_If{};
+
+template <typename T>
+struct Enable_If<true,T>{
+    using Type=T;
+};
+
+template <bool TypeBool,typename T = void>
+using Enable_If_T= typename Enable_If<TypeBool,T>::Type;
+
+/* только для проверки
 class A{
 public:
     double value;
@@ -9,6 +24,7 @@ public:
         (*this).A::value;
     }
 };
+*/
 
 template <size_t index,typename Type>
 struct TuplePart{
@@ -43,3 +59,18 @@ First& Get(Tuple< index, First,  Others...>& tuple) {
 
 template<typename... Items>
 using Tuple_ = Tuple<0, Items...>;
+
+
+template <size_t I = 0, typename... Tail> 
+typename Enable_If_T<( I >= sizeof...(Tail) )> printTuple(Tuple_<Tail...> tup)//enable if создаёт тип при условии 
+{
+    return;
+}
+template <size_t I = 0, typename... Tail> 
+typename Enable_If_T<( I < sizeof...(Tail) )>  printTuple(Tuple_<Tail...> tup)
+{
+    std::cout << Get<I>(tup) << " ";
+    printTuple<I + 1>(tup);
+}
+template <typename ... TypeForTuple> 
+using Tuple_=Tuple<0,TypeForTuple...>;
