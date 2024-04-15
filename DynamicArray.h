@@ -1,34 +1,35 @@
 #pragma once
-#include <cstring>
-#include <algorithm> 
+#include "MySwap.h"
 
 
+//Избавиться от memcpy
 template <typename T>
 class DynamicArray{
-    
+//capacity
 private:
     int size=0;
     T* elements=nullptr;
     void swap(DynamicArray<T>& toSwap){
-        std::swap(size,toSwap.size);
-        std::swap(elements,toSwap.elements);
+        MySwap(size,toSwap.size);
+        MySwap(elements,toSwap.elements);
     }
 public:
     //Constructors
     DynamicArray():size(0),elements(nullptr){} ;
     DynamicArray(int size):size(size),elements(nullptr){
-        if(size<0) throw std::invalid_argument("invalid input in constructor");
+        if(size<0) throw std::invalid_argument("invalid argument in constructor");
         if(size>0) elements=new T[size];
     }
     DynamicArray( T* items, int count):DynamicArray<T>(count){
-        if(items==nullptr) throw std::invalid_argument("invalid input in constructor");
+        if(items==nullptr) throw std::invalid_argument("invalid argument in constructor");
         for(int i=0;i<count;i++){
             elements[i]=items[i];
         }
     }
     DynamicArray( const T& fillElem, int count):DynamicArray<T>(count){
-        //memset(&elements,fillElem,sizeof(T)*count);  возможно заменить на std:fill
-        std::fill(elements,elements+size,fillElem);
+        for(int i=0;i<size;i++){
+            elements[i]=fillElem;
+        }
     }
     DynamicArray(const DynamicArray<T>& array):DynamicArray<T>(array.elements,array.size){}
 
@@ -44,45 +45,77 @@ public:
         if(size<=index||index<0)throw std::out_of_range("Invalid index");
         elements[index]=value;
     }
-    void Resize(int newSize,int offset){
-        if(newSize<0||offset<0||offset+size>newSize)throw std::invalid_argument("Invalid input in Resize fucntion");
+    void Resize(int newSize,int offset){ // Resize)(ewsize)
+        if(newSize<0||offset<0||offset+size>newSize)throw std::invalid_argument("Invalid argument in Resize fucntion");
         if(newSize==0){
             delete[] elements;
             elements=nullptr;
             return;
         }
         T* buf = new T[newSize];
-        if(size!=0) memcpy((void*)(buf+offset),(void*)elements,sizeof(T)*std::min(size,newSize));
-        delete[] elements;
+        if(elements!=nullptr){
+            for(int i=0;i<std::min(size,newSize);i++){
+                buf[i+offset]=elements[i];
+            }
+            delete[] elements;
+        }
         elements=buf;
         size=newSize;
     }
+
+    void Resize(int newSize){ 
+        if(newSize<0||size>newSize)throw std::invalid_argument("Invalid argument in Resize fucntion");
+        if(newSize==0){
+            delete[] elements;
+            elements=nullptr;
+            return;
+        }
+        T* buf = new T[newSize];
+        if(elements!=nullptr){
+            for(int i=0;i<std::min(size,newSize);i++){
+                buf[i]=elements[i];
+            }
+            delete[] elements;
+        }
+        elements=buf;
+        size=newSize;
+    }
+
     void InsertAt(const T& item, int index) {
         if(index<0||index>size) throw std::invalid_argument("");
         size++;
         T* buf = new T[size];
         if(elements!=nullptr){
-            memcpy((void*)(buf),(void*)elements,sizeof(T)*index);
-            memcpy((void*)(buf+index+1),(void*)(elements+index),sizeof(T)*(size-index)); 
+            for(int i=0;i<index;i++){
+                buf[i]=elements[i];
+            }
+            for(int i=index;i<size-1;i++){
+                buf[i+1]=elements[i];
+            }
         }
         buf[index]=item;
         delete[] elements;
         elements=buf;
     }
     void RemoveAt(int index) {
-        if(index<0||index>=size) throw std::invalid_argument("");
+        if(index<0||index>=size) throw std::invalid_argument("Remove operation in empty array");
         if(size==1){
             delete[] elements;
             elements=nullptr;
             size--;
             return;
+        } 
+        size--;
+        T* buf = new T[size];
+        for(int i=0;i<index;i++){
+            buf[i]=elements[i];
         }
-        T* buf = new T[size-1];
-        memcpy((void*)(buf),(void*)elements,sizeof(T)*index);
-        memcpy((void*)(buf+index),(void*)(elements+index+1),sizeof(T)*(size-index-1));
+        for(int i=index;i<size;i++){
+            buf[i]=elements[i+1];
+        }
         delete[] elements;
         elements=buf;
-        size--;
+        return;
     }
     
     T& operator[](int index){
@@ -95,13 +128,17 @@ public:
         if(size<=0) throw std::out_of_range("Getter call in empty collection");
         return elements[index];
     }
-    
+    //тестировать
     DynamicArray<T>* Concat (const DynamicArray<T>* array){
         if(array==nullptr) throw std::invalid_argument("invalid nullptr argument in concat fucntion");
         DynamicArray<T>* buf = new DynamicArray<T>(array->GetSize()+size);
         if(buf->size==0) return buf;
-        memcpy((void*)buf->elements,(void*)this->elements,sizeof(T)*size);
-        memcpy((void*)(buf->elements+size),(void*)array->elements,sizeof(T)*array->size);
+        for(int i=0;i<size;i++){
+            buf[i]=elements[i];
+        }
+        for(int i=0;i<array->size;i++){
+            buf[size+i]=array->elements[size+i];
+        }
         return buf;
     }
     
@@ -118,8 +155,12 @@ public:
     }
     DynamicArray<T>& operator+=(const DynamicArray<T>& array){
         T* buf = new T[size+array.size];
-        memcpy((void*)buf,(void*)(this->elements),size*sizeof(T));
-        memcpy((void*)(buf+size),(void*)(array.elements),array.size*sizeof(T));
+        for(int i=0;i<size;i++){
+            buf[i]=elements[i];
+        }
+        for(int i=0;i<array->size;i++){
+            buf[size+i]=array.elements[size+i];
+        }
         delete[] elements;
         elements=buf;
         return *this;

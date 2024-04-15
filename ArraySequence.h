@@ -155,7 +155,7 @@ public:
     } 
     ImmutableArraySequence<T>* GetSubsequence(int startIndex, int endIndex) const override{
         if(startIndex<0||endIndex<startIndex) throw std::invalid_argument("");
-        if(endIndex>=this-GetLength()) throw std::out_of_range("");
+        if(endIndex>=this->GetLength()) throw std::out_of_range("");
         ImmutableArraySequence<T>* result = new ImmutableArraySequence<T>(&(*(this->data))[startIndex],endIndex-startIndex+1);
         return result;
     }

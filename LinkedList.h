@@ -1,6 +1,5 @@
 #pragma once
-#include <cstring>
-
+#include "MySwap.h"
 template <typename T>
 class Node{
 public:
@@ -19,15 +18,15 @@ private:
     int size = 0;
 
     void swap(LinkedList<T>& toSwap){
-        std::swap(size,toSwap.size);
-        std::swap(head,toSwap.head);
-        std::swap(tail,toSwap.tail);
+        MySwap(size,toSwap.size);
+        MySwap(head,toSwap.head);
+        MySwap(tail,toSwap.tail);
     }
 public:
     LinkedList (){};
     LinkedList (T* items, int count){
         if(count<0) throw std::invalid_argument("invalid argument in constuctor");
-        for(int i=0;i<count,i++){
+        for(int i=0;i<count;i++){
             Append(items[i]);
         }
     }
