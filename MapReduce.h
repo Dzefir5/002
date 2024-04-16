@@ -1,6 +1,7 @@
 #pragma once
 #include "ListSequence.h"
 #include "ArraySequence.h"
+#include "MyTuple.h"
 #include <iostream>
 
 
@@ -59,8 +60,8 @@ void zipTupleHelper(size_t& counter ,int& index, Tuple_<TypeForTuple...>& inTupl
 }*/
 
                                
-template <size_t I=0 , typename ... TypeForTuple> 
-void zipTupleHelper(size_t& counter ,int& index, Tuple_<TypeForTuple...>& inTuple){}
+template <size_t I=0 , typename ... TypeForTuple,typename ... Types> 
+void zipTupleHelper(size_t& counter ,int& index, Tuple_<TypeForTuple...>& inTuple,const Types& ... args){}
 
 
 template <size_t I=0 ,typename ... TypeForTuple,typename First,typename ... Types> 
@@ -86,54 +87,43 @@ Sequence< Tuple_< TypeForTuple... > >* zip(const Types& ... args ){
 }
 
 
-/*
-template <size_t I=0 ,typename ... Types,typename ... TypeForTuple > 
-void unzipTupleHelper(size_t& counter ,int& length,Tuple_< MutableArraySequence<TypeForTuple>*...>& inTuple,Sequence< Tuple_< TypeForTuple... > >& toUnzip){
-    MutableArraySequence<First>* buf  = new MutableArraySequence<First>;
+
+template <size_t I=0,typename First,typename ... TypeForTuple> 
+void unzipTupleHelper(size_t& counter,int& length,Tuple_< MutableArraySequence<TypeForTuple>*...>& inTuple,Sequence< Tuple_< TypeForTuple... > >& toUnzip)
+{
+    MutableArraySequence<First>* buf  = new MutableArraySequence<First>(length);
     Get<I>(inTuple) = buf;
-    for(int i =0;i<length-1 ;i++){
-        buf->Set(Get<I>(toUnzip.Get(i)),i);
+    for(int i =0;i<length ;i++){
+        buf->Set(Get<I>(toUnzip[i]),i);
     }
+    std::cout<<"последний" <<std::endl;
     counter++;
+
 }
 
-template <size_t I=0 ,typename First,typename ... TypeForTuple > 
-void unzipTupleHelper(size_t& counter ,int& length,Tuple_< MutableArraySequence<TypeForTuple>*...>& inTuple,Sequence< Tuple_< TypeForTuple... > >& toUnzip){
-    MutableArraySequence<First>* buf  = new MutableArraySequence<First>;
-    Get<I>(inTuple) = buf;
-    for(int i =0;i<length-1 ;i++){
-        buf->Set(Get<I>(toUnzip.Get(i)),i);
-    }
-    counter++;
-}
-template <size_t I=0 ,typename First,typename ... Types,typename ... TypeForTuple> 
-void unzipTupleHelper(size_t& counter ,int& length,Tuple_< MutableArraySequence<TypeForTuple>*...>& inTuple,Sequence< Tuple_< TypeForTuple... > >& toUnzip)
+template <size_t I=0 ,typename First,typename Second,typename ... Types,typename ... TypeForTuple> 
+void unzipTupleHelper(size_t& counter,int& length,Tuple_< MutableArraySequence<TypeForTuple>*...>& inTuple,Sequence< Tuple_< TypeForTuple... > >& toUnzip)
 {
-    MutableArraySequence<First>* buf  = new MutableArraySequence<First>();
-    std::cout<<"__3"<<std::endl;
+    MutableArraySequence<First>* buf  = new MutableArraySequence<First>(length);
     Get<I>(inTuple) = buf;
-    std::cout<<"__3"<<std::endl;
     for(int i =0;i<length ;i++){
-        std::cout<<"__"<<std::endl;
-        buf->Set(Get<I>(toUnzip.Get(i)),i);
+        buf->Set(Get<I>(toUnzip[i]),i);
     }
-    //buf->PrintSequence();
     counter++;
-    unzipTupleHelper<I+1,Types...>(counter,length,inTuple,toUnzip);
+    std::cout<<sizeof...(Types) <<"осталось"<<std::endl;
+    //buf->PrintSequence();
+    unzipTupleHelper<I+1,Second,Types...>(counter,length,inTuple,toUnzip);
 }
 
 template <typename ... TypeForTuple> 
 Tuple_< MutableArraySequence<TypeForTuple>*...>*  unzip(Sequence< Tuple_< TypeForTuple... > >& toUnzip){
     Tuple_< MutableArraySequence<TypeForTuple>*...>* result = new Tuple_< MutableArraySequence<TypeForTuple>*...>;
     int seqLength = toUnzip.GetLength();
-   // std::cout<<seqLength<<std::endl;
     size_t counter=0;
-    std::cout<<"__2"<<std::endl;
-    unzipTupleHelper<0,TypeForTuple... >(counter,seqLength,*result,toUnzip);
-    std::cout<<"__1"<<std::endl;
+    unzipTupleHelper<0,TypeForTuple...>(counter,seqLength,*result,toUnzip);
     return result;
 }
-*/
+
 
 
 

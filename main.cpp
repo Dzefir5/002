@@ -1,4 +1,4 @@
-#include "MyTuple.h"
+
 #include "ListSequence.h"
 #include "ArraySequence.h"
 #include "MapReduce.h"
@@ -188,13 +188,13 @@ int main(){
     }
 
                         //Unzip
-    /*Tuple_< MutableArraySequence<int>*,MutableArraySequence<double>* > * TEST = unzip(*test_4);
+    Tuple_< MutableArraySequence<int>*,MutableArraySequence<double>* > * TEST = unzip<int,double>(*test_4);
     std::cout<<"__"<<std::endl;
     std::cout<<(Get<0>(*TEST))->GetLength()<<std::endl;
     std::cout<<"__"<<std::endl;
-    //Get<0>(*TEST)->PrintSequence();
-    //Get<1>(*TEST)->PrintSequence();
-    */
+    Get<0>(*TEST)->PrintSequence();
+    Get<1>(*TEST)->PrintSequence();
+    
     
     
  
