@@ -68,7 +68,7 @@ public:
     void Set(const T& value ,int index)  {
         if(index<0||index>=size) throw std::out_of_range("Setter call with wrong index ");
         Node<T>* current = head;
-        for(int i=0;i<index-1;i++){
+        for(int i=0;i<index;i++){
             current=current->next;
         }
         current->data=value;

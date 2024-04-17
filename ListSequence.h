@@ -3,6 +3,9 @@
 #include <iostream>
 #include "LinkedList.h"
 #include "Sequence.h"
+#include "MyAbs.h"
+
+
 
 template <typename T> 
 class ListSequence : public Sequence<T>{
@@ -79,12 +82,20 @@ public:
         return result;
     }
 
-    void PrintSequence() const {
-        std::cout<<std::endl;
-        for(int i =0;i<this->GetLength();i++){
-            std::cout<<this->Get(i)<<"_";
+    ListSequence<T>* Slice(int index, int offset ,const Sequence<T> &seq ) override {
+        ListSequence<T>* result = Instance();
+        if( MyAbs(index)>=result->GetLength()) throw std::invalid_argument("");
+        int start =0 ;
+        if(index<0) { start =result->GetLength() + index;  } else { start = index; }
+        int i =start;
+        for( ; i< std::min(result->GetLength() ,  start+seq.GetLength() );i++) {
+            result->data->Set(seq.Get(i-start),i);
+        }   
+        int removeCount =0;
+        for( ;(i< std::min(result->GetLength() ,  start+offset ) ) && ( removeCount<offset-seq.GetLength() );removeCount++){
+            result->data->RemoveAt(i);
         }
-        std::cout<<std::endl;
+        return result;
     }
 
     T& operator[](int index) override{
@@ -107,6 +118,22 @@ private:
     }
 public:
     using ListSequence<T>::ListSequence;
+
+    Sequence<  Sequence<T>* >* Split( bool (*func)(T input) ) const  {
+        MutableListSequence< Sequence<T>* >* result = new MutableListSequence< Sequence<T>* >();
+        MutableListSequence<T>* buf = new MutableListSequence<T>();
+        for(int i = 0 ; i<this->GetLength();i++){
+            buf->Append(this->Get(i));
+            if( (*func)(this->Get(i)) == true){
+                result->Append(buf);
+                buf = new MutableListSequence<T>();
+            } 
+        }
+        result->Append(buf);
+        return result;
+    }
+
+    //Sequence<  Sequence<T>* >* Split( bool (*func)(T input) ) override {}
     MutableListSequence<T>* Concat(const Sequence <T>& array) const override{
         MutableListSequence<T>* result = new MutableListSequence<T>(static_cast<const Sequence<T>&>(*this));
         for(int i=0;i<array.GetLength();i++){  result->Append(array.Get(i));  }
@@ -134,6 +161,26 @@ private:
     }
 public:
     using ListSequence<T>::ListSequence;
+
+    //Sequence<  Sequence<T>* >* Split( bool (*func)(T input) ) override {}
+
+    Sequence<  Sequence<T>* >* Split( bool (*func)(T input) ) const  {
+        MutableListSequence< Sequence<T>* >* result = new MutableListSequence< Sequence<T>* >();
+        MutableListSequence<T>* buf = new MutableListSequence<T>();
+        for(int i = 0 ; i<this->GetLength();i++){
+            buf->Append(this->Get(i));
+            if( (*func)(this->Get(i)) == true){
+                std::cout<<"res"<<this->Get(i)<<std::endl;
+                result->Append(buf);
+                buf = new MutableListSequence<T>();
+            }
+        }
+        result->Append(buf);
+        ImmutableListSequence< Sequence<T>* >* finalresult = new ImmutableListSequence< Sequence<T>* >(*result);
+        delete result;
+        return finalresult;
+    }
+
     ImmutableListSequence<T>* Concat(const Sequence <T>& seq) const override{
         MutableListSequence<T>* buf = new MutableListSequence<T>(static_cast<const Sequence<T>&>(*this));
         for(int i=0;i<seq.GetLength();i++){   buf->Append(seq.Get(i));   }

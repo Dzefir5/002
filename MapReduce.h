@@ -35,17 +35,33 @@ T reduce(const Sequence<T>& seq, T (*func)(const T&,const T&),T start ){
 }
 
 
-
-
-
-
 template <typename T , typename ... Types>
 const T& getFirstArg(const T& first , const Types& ... args){
     return first;
 } 
 
+template <typename T >
+void findMinLengthHelper(int& min,const T& first ){
+    if(first.GetLength()<min){
+        min = first.GetLength();
+    }
+}
+template <typename T , typename ... Types>
+void findMinLengthHelper(int& min , const T& first,const Types& ... args){
+    if(first.GetLength()<min){
+        min = first.GetLength();
+    }
+    findMinLengthHelper(min,args...);
+}
+template <typename ... Types>
+int findMinLength(const Types& ... args){
+    int seqMinSize = getFirstArg(args...).GetLength();
+    findMinLengthHelper(seqMinSize,args...);
+    return seqMinSize;
+}
+
                 //Пока не нужна , переделать через sizeof хвоста
-int getArgsSize(int& counter ){ return counter;}
+/*int getArgsSize(int& counter ){ return counter;}
 
 template <typename T,typename ... Types>
 int getArgsSize(int& counter ,T first ,Types ... args){
@@ -53,12 +69,7 @@ int getArgsSize(int& counter ,T first ,Types ... args){
     counter++;
     return counter;
 }
-/*template <size_t I=0 , typename ... TypeForTuple,typename First> 
-void zipTupleHelper(size_t& counter ,int& index, Tuple_<TypeForTuple...>& inTuple,const First& first){
-    Get<I>(inTuple) = first.Get(index);
-    counter++;
-}*/
-
+*/
                                
 template <size_t I=0 , typename ... TypeForTuple,typename ... Types> 
 void zipTupleHelper(size_t& counter ,int& index, Tuple_<TypeForTuple...>& inTuple,const Types& ... args){}
@@ -74,9 +85,9 @@ void zipTupleHelper(size_t& counter ,int& index, Tuple_<TypeForTuple...>& inTupl
 template <typename ... TypeForTuple,typename ... Types> 
 Sequence< Tuple_< TypeForTuple... > >* zip(const Types& ... args ){
     //реализовать поиск меньшего массива
-    int seqSize = getFirstArg(args...).GetLength();
+    int seqSize = findMinLength(args...);
     MutableArraySequence< Tuple_<TypeForTuple ... > >* result = new MutableArraySequence< Tuple_<TypeForTuple ... > >(seqSize);
-    for(int i =0; i< seqSize;i++){ //создать кортеж
+    for(int i =0; i< seqSize;i++){ 
         Tuple_<TypeForTuple...>* buf =  new Tuple_<TypeForTuple...> ;
         size_t counter =0;
         zipTupleHelper<0 , TypeForTuple...>(counter,i,*buf,args...);
@@ -111,19 +122,16 @@ void unzipTupleHelper(size_t& counter,int& length,Tuple_< MutableArraySequence<T
     }
     counter++;
     std::cout<<sizeof...(Types) <<"осталось"<<std::endl;
-    //buf->PrintSequence();
     unzipTupleHelper<I+1,Second,Types...>(counter,length,inTuple,toUnzip);
 }
 
 template <typename ... TypeForTuple> 
-Tuple_< MutableArraySequence<TypeForTuple>*...>*  unzip(Sequence< Tuple_< TypeForTuple... > >& toUnzip){
+Tuple_< MutableArraySequence<TypeForTuple>*...>&  unzip(Sequence< Tuple_< TypeForTuple... > >& toUnzip){
     Tuple_< MutableArraySequence<TypeForTuple>*...>* result = new Tuple_< MutableArraySequence<TypeForTuple>*...>;
     int seqLength = toUnzip.GetLength();
     size_t counter=0;
     unzipTupleHelper<0,TypeForTuple...>(counter,seqLength,*result,toUnzip);
-    return result;
+    return *result;
 }
-
-
 
 

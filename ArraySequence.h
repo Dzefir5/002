@@ -3,6 +3,7 @@
 #include <iostream>
 #include "DynamicArray.h"
 #include "Sequence.h"
+#include "MyAbs.h"
 
 template <typename T>
 class ArraySequence : public Sequence<T>{
@@ -31,9 +32,9 @@ public:
         this->data = new DynamicArray<T>(fillElem,count);
     }
     ArraySequence (const Sequence<T>& seq ){
-        this->data = new DynamicArray<T>();
+        this->data = new DynamicArray<T>(seq.GetLength());
         for(int i =0;i<seq.GetLength();i++){
-            appendWithoutInstance(seq.Get(i));
+            this->data->Set(seq.Get(i),i);
         }
     }
     T GetFirst() const override{
@@ -57,13 +58,13 @@ public:
     ArraySequence<T>* Append(const T& item) override{
         ArraySequence<T>* result=Instance();
         result->data->Resize(data->GetSize()+1,0);
-        (*(result->data))[data->GetSize()-1] = item;
+        result->data->Set(item,data->GetSize()-1);
         return result;
     }
     ArraySequence<T>* Prepend(const T& item)  override{
         ArraySequence<T>* result=Instance();
         result->data->Resize(data->GetSize()+1,1);
-        (*(result->data))[0] = item;
+        result->data->Set(item,0);
         return result;
     }
     ArraySequence<T>* InsertAt(const T& item, int index) override{
@@ -77,12 +78,20 @@ public:
         return result;
     }
 
-    void PrintSequence() const {
-        std::cout<<std::endl;
-        for(int i =0;i<this->GetLength();i++){
-            std::cout<<this->Get(i)<<"_";
+    ArraySequence<T>* Slice(int index, int offset , const Sequence<T> &seq ) override {
+        ArraySequence<T>* result = Instance();
+        if( MyAbs(index)>result->GetLength()) throw std::invalid_argument("");
+        int start =0 ;
+        if(index<0) { start =result->GetLength() + index;  } else { start = index; }
+        int i =start;
+        for( ; i< std::min(result->GetLength() ,  start+seq.GetLength() );i++) {
+            result->data->Set(seq.Get(i-start),i);
+        }   
+        int removeCount =0;
+        for( ;(i< std::min(result->GetLength() , start+offset ) ) && ( removeCount<offset-seq.GetLength() );removeCount++){
+            result->data->RemoveAt(i);
         }
-        std::cout<<std::endl;
+        return result;
     }
 
     T& operator[](int index) override {
@@ -103,20 +112,32 @@ private:
     }
     const ArraySequence<T>* Instance() const override  {
         return static_cast<const ArraySequence<T>*>(this);
-    }
+    } 
 public:
     using ArraySequence<T>::ArraySequence;
-    /*MutableArraySequence (const Sequence <T>& seq){ // спросить про наследование конструкторов
-        this->data = new DynamicArray<T>();
-        std::cout<<"----==="<<std::endl;
-        for(int i =0;i<seq.GetLength();i++){
-            this->Append( seq.Get(i) );
+
+    Sequence<  Sequence<T>* >* Split( bool (*func)(T input) ) const  {
+        MutableArraySequence< Sequence<T>* >* result = new MutableArraySequence< Sequence<T>* >();
+        MutableArraySequence<T>* buf = new MutableArraySequence<T>();
+        for(int i = 0 ; i<this->GetLength();i++){
+            buf->Append(this->Get(i));
+            if( (*func)(this->Get(i)) == true){
+                result->Append(buf);
+                buf = new MutableArraySequence<T>();
+            } 
         }
-    }*/
+        result->Append(buf);
+        return result;
+    }
+
     MutableArraySequence<T>* Concat( const Sequence <T>& array) const override{
-        MutableArraySequence<T>* result = new MutableArraySequence<T>(static_cast<const Sequence<T>&>(*this));
-        if(result->data==this->data) std::cout<<"error";
-        for(int i=0;i<array.GetLength();i++){   result->Append(array.Get(i));   }
+        MutableArraySequence<T>* result = new MutableArraySequence<T>(this->GetLength() + array.GetLength());
+        for(int i=0;i<this->GetLength();i++){
+            result->Set(this->Get(i),i);
+        }
+        for(int i=0;i<array.GetLength();i++){
+            result->Set(array.Get(i),i+this->GetLength());
+        }
         return result;
     } 
     MutableArraySequence<T>* GetSubsequence(int startIndex, int endIndex) const override{
@@ -140,16 +161,31 @@ private:
     }
 public:
     using ArraySequence<T>::ArraySequence;
-    /*ImmutableArraySequence (const Sequence <T>& seq){ // спросить про наследование конструкторов
-        std::cout<<"----))))"<<std::endl;
-        this->data = new DynamicArray<T>();
-        for(int i =0;i<seq.GetLength();i++){
-            this->Append( seq.Get(i) );
+
+    Sequence<  Sequence<T>* >* Split( bool (*func)(T input) ) const  {
+        MutableArraySequence< Sequence<T>* >* result = new MutableArraySequence< Sequence<T>* >();
+        MutableArraySequence<T>* buf = new MutableArraySequence<T>();
+        for(int i = 0 ; i<this->GetLength();i++){
+            buf->Append(this->Get(i));
+            if( (*func)(this->Get(i)) == true){
+                result->Append(buf);
+                buf = new MutableArraySequence<T>();
+            } 
         }
-    }*/
+        result->Append(buf);
+        ImmutableArraySequence< Sequence<T>* >* finalresult = new ImmutableArraySequence< Sequence<T>* >(*result);
+        delete result;
+        return finalresult;
+    }
+
     ImmutableArraySequence<T>* Concat( const Sequence <T>& array) const override{
-        MutableArraySequence<T>* buf = new MutableArraySequence<T>(static_cast<const Sequence<T>&>(*this));
-        for(int i=0;i<array.GetLength();i++){   buf->Append(array.Get(i));   }
+        MutableArraySequence<T>* buf = new MutableArraySequence<T>(this->GetLength() + array.GetLength());
+        for(int i=0;i<this->GetLength();i++){
+            buf->Set(this->Get(i),i);
+        }
+        for(int i=0;i<array.GetLength();i++){
+            buf->Set(array.Get(i),i+this->GetLength());
+        }
         ImmutableArraySequence<T>* result = new ImmutableArraySequence<T>(*buf);
         delete buf;
         return result;

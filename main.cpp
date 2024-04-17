@@ -140,7 +140,54 @@ int main(){
     testA1[3]=4;
     testA1[4]=5;
     testA1.PrintSequence();
+    std::cout<<"ArraySlice TEST"<<std::endl;
+    MutableArraySequence<int> testArraySlice(2,6);
+    MutableArraySequence<int> testArraySliceAdd(6,2);
+    testArraySlice.PrintSequence();
+    testArraySlice.Slice(2,3,testArraySliceAdd);
+    testArraySlice.PrintSequence();
+    std::cout<<"ArraySlice - TEST"<<std::endl;
+    MutableArraySequence<int> testArraySlice2(2,6);
+    testArraySlice2.PrintSequence();
+    testArraySlice2.Slice(-4,3,testArraySliceAdd);
+    testArraySlice2.PrintSequence();
 
+    std::cout<<"ListSlice TEST"<<std::endl;
+    MutableListSequence<int> testListSlice(2,6);
+    MutableListSequence<int> testListSliceAdd(6,2);
+    testListSlice.PrintSequence();
+    testListSlice.Slice(2,3,testListSliceAdd);
+    testListSlice.PrintSequence();
+
+    std::cout<<"Split TEST"<<std::endl;
+    int b[]={1,2,3,4,5,6};
+    MutableArraySequence<int> testSplit1 (b,6);
+    MutableListSequence<int> testSplit2 (b,6);
+    ImmutableArraySequence<int> testSplit3 (b,6);
+    ImmutableListSequence<int> testSplit4 (b,6);
+    testSplit1 .PrintSequence();
+    auto func { [](int i){ return i==3;  }};
+    auto splitResult1 = testSplit1.Split(func);
+    auto splitResult2 = testSplit2.Split(func);
+    auto splitResult3 = testSplit3.Split(func);
+    auto splitResult4 = testSplit4.Split(func);
+    std::cout<<"SplitArrayM"<<splitResult1->GetLength()<<std::endl;
+    for(int i=0;i<splitResult1->GetLength();i++){
+        splitResult1->Get(i)->PrintSequence();
+    }
+    std::cout<<"SplitArrayIm"<<splitResult2->GetLength()<<std::endl;
+    for(int i=0;i<splitResult2->GetLength();i++){
+        splitResult2->Get(i)->PrintSequence();
+    }
+    std::cout<<"SplitListM"<<splitResult3->GetLength()<<testSplit3.GetLength()<<std::endl;
+    for(int i=0;i<splitResult3->GetLength();i++){
+        splitResult3->Get(i)->PrintSequence();
+    }
+    std::cout<<"SplitListIm"<<splitResult4->GetLength()<<testSplit4.GetLength()<<std::endl;
+    for(int i=0;i<splitResult4->GetLength();i++){
+        splitResult4->Get(i)->PrintSequence();
+    }
+    
 
     std::cout<<"Map TEST"<<std::endl;
     MutableListSequence<int> testMap(2,5);
@@ -168,9 +215,10 @@ int main(){
     MutableArraySequence<int> test_1(1,2);
     test_1[0]=1;
     test_1[1]=2;
-    MutableArraySequence<double> test_2(2.0,2.0);
+    MutableArraySequence<double> test_2(2.0,3);
     test_2[0]=3.1;
     test_2[1]=4.2;
+    test_2[2]=5.2;
     MutableArraySequence<int> test_3(3,2);
     test_3[0]=5;
     test_3[1]=6;
@@ -178,8 +226,7 @@ int main(){
     test_1.PrintSequence();
     test_2.PrintSequence();
     test_3.PrintSequence();
-    MutableArraySequence<Tuple_<int,double>>* test_4 = 
-        static_cast<MutableArraySequence<Tuple_<int,double>>*>( zip<int,double>(test_1,test_2) );
+    auto test_4 = static_cast<MutableArraySequence<Tuple_<int,double>>*>( zip<int,double>(test_1,test_2) );
         
 
     for(int i =0; i<test_4->GetLength();i++){
@@ -188,12 +235,13 @@ int main(){
     }
 
                         //Unzip
-    Tuple_< MutableArraySequence<int>*,MutableArraySequence<double>* > * TEST = unzip<int,double>(*test_4);
+    //Tuple_< MutableArraySequence<int>*,MutableArraySequence<double>* > * TEST =
+    auto TEST =  unzip<int,double>(*test_4);
     std::cout<<"__"<<std::endl;
-    std::cout<<(Get<0>(*TEST))->GetLength()<<std::endl;
+    std::cout<<(Get<0>(TEST))->GetLength()<<std::endl;
     std::cout<<"__"<<std::endl;
-    Get<0>(*TEST)->PrintSequence();
-    Get<1>(*TEST)->PrintSequence();
+    Get<0>(TEST)->PrintSequence();
+    Get<1>(TEST)->PrintSequence();
     
     
     

@@ -16,7 +16,29 @@ public:
     virtual Sequence<T>*  InsertAt( const T& item, int index )=0;
     virtual Sequence<T>*  RemoveAt( int index )=0;
     virtual Sequence<T>* Concat( const Sequence<T> &seq ) const = 0; 
+    //virtual Sequence<  Sequence<T>* >* Split( bool (*func)(T input) ) const   = 0; 
+    virtual Sequence<T>* Slice(int index, int offset , const Sequence<T> &seq )  = 0; 
 
     virtual T& operator[](int index) = 0 ;
+
+    void PrintSequence() const {
+        std::cout<<std::endl;
+        for(int i =0;i<this->GetLength();i++){
+            std::cout<<this->Get(i)<<" ";
+        }
+        std::cout<<std::endl;
+    }
+
+    bool operator==(const Sequence<T> &seq){
+        if(seq.GetLength()!=this->GetLength()){ 
+            return false; 
+        }
+        for(int i = 0;i<seq.GetLength();i++){
+            if(this->Get(i)!=seq.Get(i)){
+                return false;
+            }
+        }
+        return true;
+    }
 };
 
