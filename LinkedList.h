@@ -5,6 +5,7 @@ class Node{
 public:
     Node<T>* next=nullptr;
     T data;
+    Node() = default;
     Node(T indata):next(nullptr),data(indata){};
     Node(T indata,Node<T>* ptr):data(indata),next(ptr){};
 };
@@ -24,6 +25,21 @@ private:
     }
 public:
     LinkedList (){};
+    LinkedList ( int count){
+        if(count<0) throw std::invalid_argument("invalid argument in constuctor");
+        this->size=count;
+        for(int i=0;i<count-1;i++){
+            if(i==0){
+                Node<T>* buf = new Node<T>();
+                head = buf;
+                tail = buf;
+                continue;
+            }
+            Node<T>* buf = new Node<T>();
+            tail->next = buf;
+            tail = buf;
+        }
+    }
     LinkedList (T* items, int count){
         if(count<0) throw std::invalid_argument("invalid argument in constuctor");
         for(int i=0;i<count;i++){
@@ -177,8 +193,7 @@ public:
         return ;
     }
 
-    LinkedList<T>* Concat(const LinkedList<T>* list){
-        if(list == nullptr) throw std::invalid_argument("Invalid argument in Concat function");
+    LinkedList<T>* Concat(const LinkedList<T>& list){
         LinkedList<T>* buf = new LinkedList<T>(*this);
         Node<T>* current=list.head;
         while(current!= nullptr){
@@ -193,7 +208,7 @@ public:
         if(index<0) throw std::invalid_argument("Invalid input in get operator");
         if(index>=size) throw std::out_of_range("Invalid index in get operator");
         Node<T>* current = head;
-        for(int i=0;i<index-1;i++){
+        for(int i=0;i<index;i++){
             current=current->next;
         }
         return current->data;
@@ -218,7 +233,7 @@ public:
 
     bool operator==(const LinkedList<T>& list){
         if(list.size!=size) return false;
-        Node<T>* current1= list->head;
+        Node<T>* current1= list.head;
         Node<T>* current2 = head;
         while(current1!=nullptr){
             if(current1->data!=current2->data){

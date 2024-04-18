@@ -23,6 +23,9 @@ public:
     ListSequence (){
         this->data=new LinkedList<T>();
     }
+    ListSequence (int count){
+        this->data=new LinkedList<T>(count);
+    }
     ListSequence (T* items, int count){
         this->data=new LinkedList<T>(items,count);
     }
@@ -116,8 +119,37 @@ private:
     const  ListSequence<T>* Instance() const override  {
         return static_cast<const ListSequence<T>*>(this);
     }
+    MutableListSequence<T>* appendWithoutInstance(const T& item) {
+        MutableListSequence<T>* result=this;
+        result->data->Append(item);
+        return result;
+    }
 public:
     using ListSequence<T>::ListSequence;
+
+     MutableListSequence (const  MutableListSequence<T>& seq){
+        this->data = new LinkedList<T>();
+        for(int i =0;i<seq.GetLength();i++){
+            appendWithoutInstance(seq.Get(i));
+        }
+    }
+
+    MutableListSequence<T>* Slice(int index, int offset , const Sequence<T> &seq ) override {
+        MutableListSequence<T>* result = new MutableListSequence<T>(*this);
+        if( MyAbs(index)>result->GetLength()) throw std::invalid_argument("");
+        int start =0 ;
+        if(index<0) { start =result->GetLength() + index;  } else { start = index; }
+        int i =start;
+        for( ; i< std::min(result->GetLength() ,  start+seq.GetLength() );i++) {
+            result->Set(seq.Get(i-start),i);
+        }   
+        int removeCount =0;
+        
+        for( ;(i< std::min(result->GetLength() , start+offset ) ) && ( removeCount<offset-seq.GetLength() );removeCount++){
+            result->RemoveAt(i);
+        }
+        return result;
+    }
 
     Sequence<  Sequence<T>* >* Split( bool (*func)(T input) ) const  {
         MutableListSequence< Sequence<T>* >* result = new MutableListSequence< Sequence<T>* >();
@@ -152,25 +184,51 @@ template<typename T>
 class ImmutableListSequence : public ListSequence<T>{
 private:
     ListSequence<T>* Instance() override {
-        ImmutableListSequence<T>* result = new ImmutableListSequence<T>(static_cast<const Sequence<T>&>(*this));
+        ImmutableListSequence<T>* result = new ImmutableListSequence<T>(*this);
         return result;
     }
     const ListSequence<T>* Instance() const override  {
-        const ImmutableListSequence<T>* result = new ImmutableListSequence<T>(static_cast<const Sequence<T>&>(*this));
+        const ImmutableListSequence<T>* result = new ImmutableListSequence<T>(*this);
+        return result;
+    }
+    ImmutableListSequence<T>* appendWithoutInstance(const T& item) {
+        ImmutableListSequence<T>* result=this;
+        result->data->Append(item);
         return result;
     }
 public:
     using ListSequence<T>::ListSequence;
 
-    //Sequence<  Sequence<T>* >* Split( bool (*func)(T input) ) override {}
-
+     ImmutableListSequence (const ImmutableListSequence <T>& seq){
+        this->data = new LinkedList<T>();
+        for(int i =0;i<seq.GetLength();i++){
+            appendWithoutInstance(seq.Get(i));
+        }
+    }
+    ImmutableListSequence<T>* Slice(int index, int offset , const Sequence<T> &seq ) override {
+        MutableListSequence<T>* result = new MutableListSequence<T>(*this);
+        if( MyAbs(index)>result->GetLength()) throw std::invalid_argument("");
+        int start =0 ;
+        if(index<0) { start =result->GetLength() + index;  } else { start = index; }
+        int i =start;
+        for( ; i< std::min(result->GetLength() ,  start+seq.GetLength() );i++) {
+            result->Set(seq.Get(i-start),i);
+        }   
+        int removeCount =0;
+        
+        for( ;(i< std::min(result->GetLength() , start+offset ) ) && ( removeCount<offset-seq.GetLength() );removeCount++){
+            result->RemoveAt(i);
+        }
+        ImmutableListSequence<T>* res = new ImmutableListSequence<T>(*result);
+        delete result;
+        return res;
+    }
     Sequence<  Sequence<T>* >* Split( bool (*func)(T input) ) const  {
         MutableListSequence< Sequence<T>* >* result = new MutableListSequence< Sequence<T>* >();
         MutableListSequence<T>* buf = new MutableListSequence<T>();
         for(int i = 0 ; i<this->GetLength();i++){
             buf->Append(this->Get(i));
             if( (*func)(this->Get(i)) == true){
-                std::cout<<"res"<<this->Get(i)<<std::endl;
                 result->Append(buf);
                 buf = new MutableListSequence<T>();
             }

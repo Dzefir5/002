@@ -2,6 +2,7 @@
 #include "ListSequence.h"
 #include "ArraySequence.h"
 #include "MapReduce.h"
+#include "Testing.h"
 #include <iostream>
 //clang++ main.cpp -Wall -Wextra -o main.exe -v
 int testForMap(int i){
@@ -12,6 +13,14 @@ bool testForWhere(int i){
 }
 
 int main(){
+    Test_DynamicArray();
+    Test_LinkedList();
+    Test_ArraySequence();
+    Test_ListSequence();
+    Test_MyTuple();
+    Test_MapReduce();
+    std::cout<<"Tested successfully"<<std::endl;
+    /*
     int fill1 = 5;
     int fill2 = 13;
 
@@ -25,6 +34,10 @@ int main(){
     testlist2.PrintSequence();
     testlist2.Append(-30);
     testlist2.PrintSequence();
+
+
+
+    
     //Copy constructor test
     MutableArraySequence<int>* testlist4 =  new MutableArraySequence<int>(testlist1);
     testlist4->PrintSequence();
@@ -226,17 +239,17 @@ int main(){
     test_1.PrintSequence();
     test_2.PrintSequence();
     test_3.PrintSequence();
-    auto test_4 = static_cast<MutableArraySequence<Tuple_<int,double>>*>( zip<int,double>(test_1,test_2) );
+    auto test_4 = zip<int,double>(test_1,test_2) ;
         
 
-    for(int i =0; i<test_4->GetLength();i++){
-        printTuple( test_4->Get(i) );
+    for(int i =0; i<test_4.GetLength();i++){
+        printTuple( test_4.Get(i) );
         std::cout<<std::endl;
     }
 
                         //Unzip
     //Tuple_< MutableArraySequence<int>*,MutableArraySequence<double>* > * TEST =
-    auto TEST =  unzip<int,double>(*test_4);
+    auto TEST =  unzip<int,double>(test_4);
     std::cout<<"__"<<std::endl;
     std::cout<<(Get<0>(TEST))->GetLength()<<std::endl;
     std::cout<<"__"<<std::endl;
@@ -248,6 +261,6 @@ int main(){
  
 
 
-
+    */
     return 0;
 }

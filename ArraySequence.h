@@ -14,8 +14,8 @@ protected:
 
     ArraySequence<T>* appendWithoutInstance(const T& item) {
         ArraySequence<T>* result=this;
-        result->data->Resize(data->GetSize()+1,0);
-        (*(result->data))[data->GetSize()-1] = item;
+        result->data->Resize(data->GetLength()+1,0);
+        (*(result->data))[data->GetLength()-1] = item;
         return result;
     }
 public:
@@ -41,7 +41,7 @@ public:
         return (this->data)->Get(0);  
     }
     T GetLast() const override{
-        return (this->data)->Get(data->GetSize()-1);
+        return (this->data)->Get(data->GetLength()-1);
     }
     T Get(int index) const override{
         return (this->data)->Get(index);
@@ -52,18 +52,18 @@ public:
         return result;
     }
     int GetLength() const override{
-        return this->data->GetSize();
+        return this->data->GetLength();
     }
 
     ArraySequence<T>* Append(const T& item) override{
         ArraySequence<T>* result=Instance();
-        result->data->Resize(data->GetSize()+1,0);
-        result->data->Set(item,data->GetSize()-1);
+        result->data->Resize(data->GetLength()+1,0);
+        result->data->Set(item,data->GetLength()-1);
         return result;
     }
     ArraySequence<T>* Prepend(const T& item)  override{
         ArraySequence<T>* result=Instance();
-        result->data->Resize(data->GetSize()+1,1);
+        result->data->Resize(data->GetLength()+1,1);
         result->data->Set(item,0);
         return result;
     }
@@ -78,26 +78,9 @@ public:
         return result;
     }
 
-    ArraySequence<T>* Slice(int index, int offset , const Sequence<T> &seq ) override {
-        ArraySequence<T>* result = Instance();
-        if( MyAbs(index)>result->GetLength()) throw std::invalid_argument("");
-        int start =0 ;
-        if(index<0) { start =result->GetLength() + index;  } else { start = index; }
-        int i =start;
-        for( ; i< std::min(result->GetLength() ,  start+seq.GetLength() );i++) {
-            result->data->Set(seq.Get(i-start),i);
-        }   
-        int removeCount =0;
-        for( ;(i< std::min(result->GetLength() , start+offset ) ) && ( removeCount<offset-seq.GetLength() );removeCount++){
-            result->data->RemoveAt(i);
-        }
-        return result;
-    }
-
     T& operator[](int index) override {
         return (*(Instance()->data))[index];
     }
-
     virtual ~ArraySequence() {
 		delete data;
 	}
@@ -113,9 +96,38 @@ private:
     const ArraySequence<T>* Instance() const override  {
         return static_cast<const ArraySequence<T>*>(this);
     } 
+    MutableArraySequence<T>* appendWithoutInstance(const T& item) {
+        MutableArraySequence<T>* result=this;
+        result->data->Resize(data->GetLength()+1,0);
+        (*(result->data))[data->GetLength()-1] = item;
+        return result;
+    }
 public:
     using ArraySequence<T>::ArraySequence;
 
+    MutableArraySequence (const MutableArraySequence<T>& seq ){
+        this->data = new DynamicArray<T>(seq.GetLength());
+        for(int i =0;i<seq.GetLength();i++){
+            this->data->Set(seq.Get(i),i);
+        }
+    }
+
+    MutableArraySequence<T>* Slice(int index, int offset , const Sequence<T> &seq ) override {
+        MutableArraySequence<T>* result = new MutableArraySequence<T>(*this);
+        if( MyAbs(index)>result->GetLength()) throw std::invalid_argument("");
+        int start =0 ;
+        if(index<0) { start =result->GetLength() + index;  } else { start = index; }
+        int i =start;
+        for( ; i< std::min(result->GetLength() ,  start+seq.GetLength() );i++) {
+            result->Set(seq.Get(i-start),i);
+        }   
+        int removeCount =0;
+        
+        for( ;(i< std::min(result->GetLength() , start+offset ) ) && ( removeCount<offset-seq.GetLength() );removeCount++){
+            result->RemoveAt(i);
+        }
+        return result;
+    }
     Sequence<  Sequence<T>* >* Split( bool (*func)(T input) ) const  {
         MutableArraySequence< Sequence<T>* >* result = new MutableArraySequence< Sequence<T>* >();
         MutableArraySequence<T>* buf = new MutableArraySequence<T>();
@@ -142,7 +154,7 @@ public:
     } 
     MutableArraySequence<T>* GetSubsequence(int startIndex, int endIndex) const override{
         if(startIndex<0||endIndex<startIndex) throw std::invalid_argument("");
-        if(endIndex>=this->data->GetSize()) throw std::out_of_range("");
+        if(endIndex>=this->data->GetLength()) throw std::out_of_range("");
         MutableArraySequence<T>* result = new MutableArraySequence<T>(&(*(this->data))[startIndex],endIndex-startIndex+1);
         return result;
     }
@@ -152,15 +164,47 @@ template<typename T>
 class ImmutableArraySequence : public ArraySequence<T>{
 private:
     ArraySequence<T>* Instance() override {
-        ImmutableArraySequence<T>* result = new ImmutableArraySequence<T>(static_cast<const Sequence<T>&>(*this));
+        ImmutableArraySequence<T>* result = new ImmutableArraySequence<T>(*this);
         return result;
     }
     const ArraySequence<T>* Instance() const override  {
-        const ImmutableArraySequence<T>* result = new ImmutableArraySequence<T>(static_cast<const Sequence<T>&>(*this));
+        const ImmutableArraySequence<T>* result = new const ImmutableArraySequence<T>(*this);
+        return result;
+    }
+    ImmutableArraySequence<T>* appendWithoutInstance(const T& item) {
+        ImmutableArraySequence<T>* result=this;
+        result->data->Resize(data->GetLength()+1,0);
+        (*(result->data))[data->GetLength()-1] = item;
         return result;
     }
 public:
     using ArraySequence<T>::ArraySequence;
+
+    ImmutableArraySequence (const  ImmutableArraySequence<T>& seq ){
+        this->data = new DynamicArray<T>(seq.GetLength());
+        for(int i =0;i<seq.GetLength();i++){
+            this->data->Set(seq.Get(i),i);
+        }
+    }
+
+    ImmutableArraySequence<T>* Slice(int index, int offset , const Sequence<T> &seq ) override {
+        MutableArraySequence<T>* result = new MutableArraySequence<T>(*this);
+        if( MyAbs(index)>result->GetLength()) throw std::invalid_argument("");
+        int start =0 ;
+        if(index<0) { start =result->GetLength() + index;  } else { start = index; }
+        int i =start;
+        for( ; i< std::min(result->GetLength() ,  start+seq.GetLength() );i++) {
+            result->Set(seq.Get(i-start),i);
+        }   
+        int removeCount =0;
+        
+        for( ;(i< std::min(result->GetLength() , start+offset ) ) && ( removeCount<offset-seq.GetLength() );removeCount++){
+            result->RemoveAt(i);
+        }
+        ImmutableArraySequence<T>* res = new ImmutableArraySequence<T>(*result);
+        delete result;
+        return res;
+    }
 
     Sequence<  Sequence<T>* >* Split( bool (*func)(T input) ) const  {
         MutableArraySequence< Sequence<T>* >* result = new MutableArraySequence< Sequence<T>* >();

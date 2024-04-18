@@ -39,13 +39,13 @@ public:
         return elements[index];
     }
 
-    int GetSize() const { return this->size; }
+    int GetLength() const { return this->size; }
 
     void Set(const T& value,int index) {
         if(size<=index||index<0)throw std::out_of_range("Invalid index");
         elements[index]=value;
     }
-    void Resize(int newSize,int offset){ // Resize)(ewsize)
+    void Resize(int newSize,int offset){ 
         if(newSize<0||offset<0||offset+size>newSize)throw std::invalid_argument("Invalid argument in Resize fucntion");
         if(newSize==0){
             delete[] elements;
@@ -129,15 +129,14 @@ public:
         return elements[index];
     }
     //тестировать
-    DynamicArray<T>* Concat (const DynamicArray<T>* array){
-        if(array==nullptr) throw std::invalid_argument("invalid nullptr argument in concat fucntion");
-        DynamicArray<T>* buf = new DynamicArray<T>(array->GetSize()+size);
+    DynamicArray<T>* Concat (const DynamicArray<T>& array){
+        DynamicArray<T>* buf = new DynamicArray<T>(array.GetLength()+size);
         if(buf->size==0) return buf;
-        for(int i=0;i<size;i++){
-            buf[i]=elements[i];
+        for(int i=0;i<this->size;i++){
+            (*buf)[i]=this->elements[i];
         }
-        for(int i=0;i<array->size;i++){
-            buf[size+i]=array->elements[size+i];
+        for(int i=0;i<array.GetLength();i++){
+            (*buf)[size+i]=array.elements[i];
         }
         return buf;
     }
@@ -149,7 +148,7 @@ public:
         }
         return true;
     }
-    DynamicArray<T>& operator=(const DynamicArray<T> array){ ///COPY AND SWAP IDIOM
+    DynamicArray<T>& operator=( DynamicArray<T> array){ ///COPY AND SWAP IDIOM
        swap(array);
        return *this;
     }

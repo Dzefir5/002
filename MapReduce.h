@@ -27,7 +27,7 @@ Sequence<T>& where(const Sequence<T>& seq, bool (*func)( T ,const Types& ...),co
 }
 
 template <typename T>
-T reduce(const Sequence<T>& seq, T (*func)(const T&,const T&),T start ){
+T reduce(const Sequence<T>& seq, T (*func)( T, T),T start ){
     for(int i=0;i<seq.GetLength();i++){
         start = (*func)(start,seq.Get(i));
     }
@@ -83,7 +83,7 @@ void zipTupleHelper(size_t& counter ,int& index, Tuple_<TypeForTuple...>& inTupl
 }
                     // попытаться сделать самостоятельное определение типов
 template <typename ... TypeForTuple,typename ... Types> 
-Sequence< Tuple_< TypeForTuple... > >* zip(const Types& ... args ){
+MutableArraySequence< Tuple_< TypeForTuple... > >& zip(const Types& ... args ){
     //реализовать поиск меньшего массива
     int seqSize = findMinLength(args...);
     MutableArraySequence< Tuple_<TypeForTuple ... > >* result = new MutableArraySequence< Tuple_<TypeForTuple ... > >(seqSize);
@@ -94,7 +94,7 @@ Sequence< Tuple_< TypeForTuple... > >* zip(const Types& ... args ){
         result->Set( *buf, i);
         delete buf;
     }
-    return result;
+    return *result;
 }
 
 
@@ -107,7 +107,6 @@ void unzipTupleHelper(size_t& counter,int& length,Tuple_< MutableArraySequence<T
     for(int i =0;i<length ;i++){
         buf->Set(Get<I>(toUnzip[i]),i);
     }
-    std::cout<<"последний" <<std::endl;
     counter++;
 
 }
@@ -121,7 +120,6 @@ void unzipTupleHelper(size_t& counter,int& length,Tuple_< MutableArraySequence<T
         buf->Set(Get<I>(toUnzip[i]),i);
     }
     counter++;
-    std::cout<<sizeof...(Types) <<"осталось"<<std::endl;
     unzipTupleHelper<I+1,Second,Types...>(counter,length,inTuple,toUnzip);
 }
 

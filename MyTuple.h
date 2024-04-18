@@ -56,7 +56,7 @@ First& Get(Tuple< index, First,  Others...>& tuple) {
 
 template <typename ... TypeForTuple> 
 using Tuple_=Tuple<0,TypeForTuple...>;
-
+// опора на SFINAE (Substitution failure is not an error)
 template <size_t I = 0, typename... Tail> 
 Enable_If_T<( I >= sizeof...(Tail) )> printTuple(Tuple_<Tail...> tup)//enable if создаёт тип при условии 
 {
