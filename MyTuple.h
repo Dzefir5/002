@@ -1,5 +1,4 @@
 #pragma once
-
 //реализовать enable if - специализация по возращаемому типу
 template <bool TypeBool,typename T = void>
 struct Enable_If{};
@@ -11,6 +10,8 @@ struct Enable_If<true,T>{
 
 template <bool TypeBool,typename T = void>
 using Enable_If_T= typename Enable_If<TypeBool,T>::Type;
+
+
 
 /* только для проверки
 class A{
@@ -28,6 +29,7 @@ public:
 
 template <size_t index,typename Type>
 struct TuplePart{
+    using type = Type;
     Type value;
     TuplePart(){};
     TuplePart(Type input):value(input){};
@@ -56,15 +58,23 @@ First& Get(Tuple< index, First,  Others...>& tuple) {
 
 template <typename ... TypeForTuple> 
 using Tuple_=Tuple<0,TypeForTuple...>;
+
+template <size_t I = 0, typename... Tail> 
+int MyTupleSize(Tuple_<Tail...> tup)//enable if создаёт тип при условии 
+{
+    return sizeof...(Tail);
+}
 // опора на SFINAE (Substitution failure is not an error)
 template <size_t I = 0, typename... Tail> 
 Enable_If_T<( I >= sizeof...(Tail) )> printTuple(Tuple_<Tail...> tup)//enable if создаёт тип при условии 
 {
     return;
 }
+
 template <size_t I = 0, typename... Tail> 
 Enable_If_T<( I < sizeof...(Tail) )>  printTuple(Tuple_<Tail...> tup)
 {
     std::cout << Get<I>(tup) << " ";
     printTuple<I + 1>(tup);
 }
+

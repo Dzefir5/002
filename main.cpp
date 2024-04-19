@@ -5,12 +5,7 @@
 #include "Testing.h"
 #include <iostream>
 //clang++ main.cpp -Wall -Wextra -o main.exe -v
-int testForMap(int i){
-    return 5*i;
-}
-bool testForWhere(int i){
-    return i%2==0;
-}
+
 
 int main(){
     Test_DynamicArray();
@@ -20,6 +15,8 @@ int main(){
     Test_MyTuple();
     Test_MapReduce();
     std::cout<<"Tested successfully"<<std::endl;
+   
+
     /*
     int fill1 = 5;
     int fill2 = 13;
