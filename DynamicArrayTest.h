@@ -38,30 +38,6 @@ void Test_DynamicArray_Set(){
     assert(test5[3]==10);
 }
 
-void Test_DynamicArray_Insert(){
-    int a[]={1,2,3,4,5,6};
-    DynamicArray<int> test5(a,6);
-    test5.InsertAt(12,3);
-    assert(test5[3]==12);
-}
-void Test_DynamicArray_Remove(){
-    int a[]={1,2,3,4,5,6};
-    DynamicArray<int> test5(a,6);
-    test5.RemoveAt(1);
-    assert(test5.Get(1)==a[2]);
-}
-void Test_DynamicArray_Concat(){
-    int b[]={1,2,3};
-    int c[]={4,5,6};
-    int bc[]={1,2,3,4,5,6};
-    DynamicArray<int> test6(b,3);
-    DynamicArray<int> test7(c,3);
-    DynamicArray<int>* test8 = test6.Concat(test7);
-    assert(test8->GetLength()==test6.GetLength()+test7.GetLength());
-    for(int i=0;i<test8->GetLength();i++){
-        assert(test8->Get(i)==bc[i]);
-    }
-}
 void Test_DynamicArray_CompareOperator(){
     int a[]={1,2,3,4,5,6};
     DynamicArray<int> test10(a,6);

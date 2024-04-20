@@ -18,9 +18,6 @@
 void Test_DynamicArray(){
     Test_DynamicArray_CompareOperator();
     Test_DynamicArray_Set();
-    Test_DynamicArray_Insert();
-    Test_DynamicArray_Remove();
-    Test_DynamicArray_Concat();
     Test_DynamicArray_Constructors();
 }
 

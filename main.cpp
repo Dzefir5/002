@@ -1,11 +1,22 @@
-
+#include "UIDemonstration.h"
 #include "ListSequence.h"
 #include "ArraySequence.h"
 #include "MapReduce.h"
 #include "Testing.h"
 #include <iostream>
 //clang++ main.cpp -Wall -Wextra -o main.exe -v
-
+/*
+int testForMap(int i){
+    return 5*i;
+}
+bool testForWhere(int i){
+    return i%2==0;
+}
+int mapWithCount(int input, int& counter){
+    counter++;
+    return counter*input;
+}
+*/
 
 int main(){
     Test_DynamicArray();
@@ -15,37 +26,20 @@ int main(){
     Test_MyTuple();
     Test_MapReduce();
     std::cout<<"Tested successfully"<<std::endl;
-   
+    
+    Delimiter(80);
+    demonstrateMutableArraySequence();
+    Delimiter(80);
+    demonstrateMutableListSequence();
+    Delimiter(80);
+    demonstartionMapReduce();
+    Delimiter(80);
+
 
     /*
-    int fill1 = 5;
-    int fill2 = 13;
+    int fill1 = 2;
+    int fill2 = 5;
 
-    MutableArraySequence<int> testlist1(fill1,5);
-    MutableArraySequence<int> testlist2(fill2,7);
-    testlist1.PrintSequence();
-    testlist2.PrintSequence();
-    testlist1.Set(10,3);
-    testlist2[3]=-30;
-    testlist1.PrintSequence();
-    testlist2.PrintSequence();
-    testlist2.Append(-30);
-    testlist2.PrintSequence();
-
-
-
-    
-    //Copy constructor test
-    MutableArraySequence<int>* testlist4 =  new MutableArraySequence<int>(testlist1);
-    testlist4->PrintSequence();
-    testlist4->Append(10);
-    testlist4->PrintSequence();
-    std::cout<<"MUTABLE ARRAY CONCAT"<<std::endl;
-    MutableArraySequence<int>* testlist3 = testlist1.Concat(testlist2);
-    testlist3->PrintSequence();
-    std::cout<<"MUTABLE ARRAY SUBSEQUENCE"<<std::endl;
-    MutableArraySequence<int>* testlist5 =testlist3->GetSubsequence(2,8);
-    testlist5->PrintSequence();
     std::cout<<"IMMUTABLE ARRAY SEQUENCE"<<std::endl;
 
     ImmutableArraySequence<int> testlist11(4,10);
@@ -154,20 +148,20 @@ int main(){
     MutableArraySequence<int> testArraySlice(2,6);
     MutableArraySequence<int> testArraySliceAdd(6,2);
     testArraySlice.PrintSequence();
-    testArraySlice.Slice(2,3,testArraySliceAdd);
-    testArraySlice.PrintSequence();
+    auto testArraySliceResult1 = testArraySlice.Slice(2,3,testArraySliceAdd);
+    testArraySliceResult1->PrintSequence();
     std::cout<<"ArraySlice - TEST"<<std::endl;
     MutableArraySequence<int> testArraySlice2(2,6);
     testArraySlice2.PrintSequence();
-    testArraySlice2.Slice(-4,3,testArraySliceAdd);
-    testArraySlice2.PrintSequence();
+    auto testArraySliceResult2 = testArraySlice2.Slice(-4,3,testArraySliceAdd);
+    testArraySliceResult2->PrintSequence();
 
     std::cout<<"ListSlice TEST"<<std::endl;
     MutableListSequence<int> testListSlice(2,6);
     MutableListSequence<int> testListSliceAdd(6,2);
     testListSlice.PrintSequence();
-    testListSlice.Slice(2,3,testListSliceAdd);
-    testListSlice.PrintSequence();
+    auto testListSliceResult = testListSlice.Slice(2,3,testListSliceAdd);
+    testListSliceResult->PrintSequence();
 
     std::cout<<"Split TEST"<<std::endl;
     int b[]={1,2,3,4,5,6};
@@ -181,29 +175,36 @@ int main(){
     auto splitResult2 = testSplit2.Split(func);
     auto splitResult3 = testSplit3.Split(func);
     auto splitResult4 = testSplit4.Split(func);
-    std::cout<<"SplitArrayM"<<splitResult1->GetLength()<<std::endl;
+    std::cout<<"SplitArrayM"<<std::endl;
     for(int i=0;i<splitResult1->GetLength();i++){
         splitResult1->Get(i)->PrintSequence();
     }
-    std::cout<<"SplitArrayIm"<<splitResult2->GetLength()<<std::endl;
+    std::cout<<"SplitArrayIm"<<std::endl;
     for(int i=0;i<splitResult2->GetLength();i++){
         splitResult2->Get(i)->PrintSequence();
     }
-    std::cout<<"SplitListM"<<splitResult3->GetLength()<<testSplit3.GetLength()<<std::endl;
+    std::cout<<"SplitListM"<<testSplit3.GetLength()<<std::endl;
     for(int i=0;i<splitResult3->GetLength();i++){
         splitResult3->Get(i)->PrintSequence();
     }
-    std::cout<<"SplitListIm"<<splitResult4->GetLength()<<testSplit4.GetLength()<<std::endl;
+    std::cout<<"SplitListIm"<<testSplit4.GetLength()<<std::endl;
     for(int i=0;i<splitResult4->GetLength();i++){
         splitResult4->Get(i)->PrintSequence();
     }
     
 
-    std::cout<<"Map TEST"<<std::endl;
-    MutableListSequence<int> testMap(2,5);
-    testMap.PrintSequence();
-    MutableArraySequence<int> mapResult = map(testMap,&testForMap);\
-    mapResult.PrintSequence();
+    std::cout<<"Map TEST 1"<<std::endl;
+    MutableListSequence<int> testMap1(2,5);
+    testMap1.PrintSequence();
+    MutableArraySequence<int> mapResult1 = map(testMap1,&testForMap);\
+    mapResult1.PrintSequence();
+    std::cout<<"Map TEST 2"<<std::endl;
+    int amap[] = {1,2,3,4,5};
+    int counter = 0;
+    MutableListSequence<int> testMap2(amap,5);
+    testMap2.PrintSequence();
+    MutableArraySequence<int> mapResult2 = map(testMap2,&mapWithCount,counter);
+    mapResult2.PrintSequence();
 
     std::cout<<"Where TEST"<<std::endl;
     int a[4]={1,2,3,4};
@@ -218,6 +219,7 @@ int main(){
     Tuple_<int,double,char> tup (1,2.4,'u');
     Tuple_<int,int,double,char>* tups = new Tuple_<int,int,double,char>(3,713,9.0,'f');
     printTuple( *tups);
+    std::cout<<std::endl;
     printTuple( tup);
     std::cout<<Get<0>(tup)<<std::endl;
                         //ZIP
@@ -229,16 +231,16 @@ int main(){
     test_2[0]=3.1;
     test_2[1]=4.2;
     test_2[2]=5.2;
-    MutableArraySequence<int> test_3(3,2);
-    test_3[0]=5;
-    test_3[1]=6;
+    MutableArraySequence<char> test_3('a',2);
+    test_3[0]='a';
+    test_3[1]='b';
 
     test_1.PrintSequence();
     test_2.PrintSequence();
     test_3.PrintSequence();
-    auto test_4 = zip<int,double>(test_1,test_2) ;
+    auto test_4 = zip<int,double,char>(test_1,test_2,test_3) ;
         
-
+    std::cout<<"ZIP RESULT"<<std::endl;
     for(int i =0; i<test_4.GetLength();i++){
         printTuple( test_4.Get(i) );
         std::cout<<std::endl;
@@ -246,18 +248,14 @@ int main(){
 
                         //Unzip
     //Tuple_< MutableArraySequence<int>*,MutableArraySequence<double>* > * TEST =
-    auto TEST =  unzip<int,double>(test_4);
-    std::cout<<"__"<<std::endl;
+    std::cout<<"UNZIP TEST"<<std::endl;
+    auto TEST =  unzip(test_4);
     std::cout<<(Get<0>(TEST))->GetLength()<<std::endl;
-    std::cout<<"__"<<std::endl;
     Get<0>(TEST)->PrintSequence();
+    std::cout<<"UNZIP RESULT"<<std::endl;
     Get<1>(TEST)->PrintSequence();
     
     
     
- 
-
-
-    */
-    return 0;
+    return 0;*/
 }

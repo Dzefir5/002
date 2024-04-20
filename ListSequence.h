@@ -44,6 +44,12 @@ public:
             appendWithoutInstance(seq.Get(i));
         }
     }
+    ListSequence (const ListSequence<T>& seq){
+        this->data = new LinkedList<T>();
+        for(int i =0;i<seq.GetLength();i++){
+            appendWithoutInstance(seq.Get(i));
+        }
+    }
 
     T GetFirst() const override{
         return this->data->GetFirst();
@@ -87,7 +93,8 @@ public:
 
     ListSequence<T>* Slice(int index, int offset ,const Sequence<T> &seq ) override {
         ListSequence<T>* result = Instance();
-        if( MyAbs(index)>=result->GetLength()) throw std::invalid_argument("");
+        if( MyAbs(index)>=result->GetLength()) 
+            throw std::invalid_argument("");
         int start =0 ;
         if(index<0) { start =result->GetLength() + index;  } else { start = index; }
         int i =start;
@@ -119,20 +126,9 @@ private:
     const  ListSequence<T>* Instance() const override  {
         return static_cast<const ListSequence<T>*>(this);
     }
-    MutableListSequence<T>* appendWithoutInstance(const T& item) {
-        MutableListSequence<T>* result=this;
-        result->data->Append(item);
-        return result;
-    }
+
 public:
     using ListSequence<T>::ListSequence;
-
-     MutableListSequence (const  MutableListSequence<T>& seq){
-        this->data = new LinkedList<T>();
-        for(int i =0;i<seq.GetLength();i++){
-            appendWithoutInstance(seq.Get(i));
-        }
-    }
 
     MutableListSequence<T>* Slice(int index, int offset , const Sequence<T> &seq ) override {
         MutableListSequence<T>* result = new MutableListSequence<T>(*this);
@@ -165,7 +161,7 @@ public:
         return result;
     }
 
-    //Sequence<  Sequence<T>* >* Split( bool (*func)(T input) ) override {}
+   
     MutableListSequence<T>* Concat(const Sequence <T>& array) const override{
         MutableListSequence<T>* result = new MutableListSequence<T>(static_cast<const Sequence<T>&>(*this));
         for(int i=0;i<array.GetLength();i++){  result->Append(array.Get(i));  }
@@ -191,20 +187,9 @@ private:
         const ImmutableListSequence<T>* result = new ImmutableListSequence<T>(*this);
         return result;
     }
-    ImmutableListSequence<T>* appendWithoutInstance(const T& item) {
-        ImmutableListSequence<T>* result=this;
-        result->data->Append(item);
-        return result;
-    }
 public:
     using ListSequence<T>::ListSequence;
 
-     ImmutableListSequence (const ImmutableListSequence <T>& seq){
-        this->data = new LinkedList<T>();
-        for(int i =0;i<seq.GetLength();i++){
-            appendWithoutInstance(seq.Get(i));
-        }
-    }
     ImmutableListSequence<T>* Slice(int index, int offset , const Sequence<T> &seq ) override {
         MutableListSequence<T>* result = new MutableListSequence<T>(*this);
         if( MyAbs(index)>result->GetLength()) throw std::invalid_argument("");

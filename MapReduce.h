@@ -2,11 +2,10 @@
 #include "ListSequence.h"
 #include "ArraySequence.h"
 #include "MyTuple.h"
-#include <iostream>
 
 
 template <typename T,typename U,typename ... Types>
-Sequence<U>& map(const Sequence<T>& seq, U (*func)( T,const Types& ...),const Types&...tail){
+Sequence<U>& map(const Sequence<T>& seq, U (*func)( T, Types& ...),Types&...tail){
     MutableArraySequence<U>* result = new MutableArraySequence<U>(seq.GetLength());
     for(int i =0;i<seq.GetLength();i++){
         (*result)[i]=(*func)(seq.Get(i),tail...);
@@ -16,7 +15,7 @@ Sequence<U>& map(const Sequence<T>& seq, U (*func)( T,const Types& ...),const Ty
 }
 
 template <typename T,typename ... Types>
-Sequence<T>& where(const Sequence<T>& seq, bool (*func)( T ,const Types& ...),const Types&...tail){
+Sequence<T>& where(const Sequence<T>& seq, bool (*func)( T ,Types& ...),Types&...tail){
     MutableArraySequence<T>* result = new MutableArraySequence<T>();
     for(int i =0;i<seq.GetLength();i++){
         if((*func)(seq.Get(i), tail...)==true){

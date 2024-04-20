@@ -1,5 +1,6 @@
 #pragma once
-//реализовать enable if - специализация по возращаемому типу
+
+
 template <bool TypeBool,typename T = void>
 struct Enable_If{};
 
@@ -13,20 +14,6 @@ using Enable_If_T= typename Enable_If<TypeBool,T>::Type;
 
 
 
-/* только для проверки
-class A{
-public:
-    double value;
-};
-class B:public A{
-public:
-    int value;
-    void f(){
-        (*this).A::value;
-    }
-};
-*/
-
 template <size_t index,typename Type>
 struct TuplePart{
     using type = Type;
@@ -38,16 +25,17 @@ struct TuplePart{
 template <size_t index,typename... Others> //  специализация
 struct Tuple{};
 
-template <size_t index,typename First,typename... Others>
-struct Tuple<index,First,Others...>:public TuplePart<index,First> , public Tuple<index+1,Others...> {
-    Tuple(First first,Others... others):TuplePart<index,First>(first),Tuple<index+1,Others...>( others...){};
-    Tuple():TuplePart<index,First>(),Tuple<index+1,Others...>( ){};
-};
-
 template <size_t index,typename First>
 struct Tuple<index,First>:public TuplePart<index,First> {
     Tuple(First first):TuplePart<index,First>(first){};
     Tuple():TuplePart<index,First>(){};
+};
+
+
+template <size_t index,typename First,typename... Others>
+struct Tuple<index,First,Others...>:public TuplePart<index,First> , public Tuple<index+1,Others...> {
+    Tuple(First first,Others... others):TuplePart<index,First>(first),Tuple<index+1,Others...>( others...){};
+    Tuple():TuplePart<index,First>(),Tuple<index+1,Others...>( ){};
 };
 
 

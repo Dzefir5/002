@@ -12,12 +12,6 @@ protected:
     virtual ArraySequence<T>* Instance()=0 ;
     virtual const ArraySequence<T>* Instance() const =0;
 
-    ArraySequence<T>* appendWithoutInstance(const T& item) {
-        ArraySequence<T>* result=this;
-        result->data->Resize(data->GetLength()+1,0);
-        (*(result->data))[data->GetLength()-1] = item;
-        return result;
-    }
 public:
     ArraySequence (){ 
         this->data = new DynamicArray<T>();
@@ -32,6 +26,12 @@ public:
         this->data = new DynamicArray<T>(fillElem,count);
     }
     ArraySequence (const Sequence<T>& seq ){
+        this->data = new DynamicArray<T>(seq.GetLength());
+        for(int i =0;i<seq.GetLength();i++){
+            this->data->Set(seq.Get(i),i);
+        }
+    }
+    ArraySequence (const ArraySequence<T>& seq ){
         this->data = new DynamicArray<T>(seq.GetLength());
         for(int i =0;i<seq.GetLength();i++){
             this->data->Set(seq.Get(i),i);
@@ -69,12 +69,35 @@ public:
     }
     ArraySequence<T>* InsertAt(const T& item, int index) override{
         ArraySequence<T>* result=Instance();
-        result->data->InsertAt(item,index);
+        if(index<0||index>result->GetLength()) 
+            throw std::invalid_argument("");
+        DynamicArray<T>* buf = new DynamicArray<T>(result->GetLength()+1);
+
+        for(int i=0;i<index;i++){
+           buf->Set(result->data->Get(i),i);
+        }
+        buf->Set(item,index);
+        for(int i=index;i<result->GetLength()-1;i++){
+            buf->Set(result->data->Get(i),i+1);
+        }
+        delete result->data;
+        result->data = buf;
         return result;
     }
     ArraySequence<T>* RemoveAt(int index) override{
         ArraySequence<T>* result=Instance();
-        result->data->RemoveAt(index);
+        if(index<0||index>result->GetLength()) 
+            throw std::invalid_argument("");
+        DynamicArray<T>* buf = new DynamicArray<T>(result->GetLength()-1);
+
+        for(int i=0;i<index;i++){
+           buf->Set(result->data->Get(i),i);
+        }
+        for(int i=index;i<result->GetLength()-1;i++){
+            buf->Set(result->data->Get(i+1),i);
+        }
+        delete result->data;
+        result->data = buf;
         return result;
     }
 
@@ -96,22 +119,9 @@ private:
     const ArraySequence<T>* Instance() const override  {
         return static_cast<const ArraySequence<T>*>(this);
     } 
-    MutableArraySequence<T>* appendWithoutInstance(const T& item) {
-        MutableArraySequence<T>* result=this;
-        result->data->Resize(data->GetLength()+1,0);
-        (*(result->data))[data->GetLength()-1] = item;
-        return result;
-    }
 public:
     using ArraySequence<T>::ArraySequence;
-
-    MutableArraySequence (const MutableArraySequence<T>& seq ){
-        this->data = new DynamicArray<T>(seq.GetLength());
-        for(int i =0;i<seq.GetLength();i++){
-            this->data->Set(seq.Get(i),i);
-        }
-    }
-
+    
     MutableArraySequence<T>* Slice(int index, int offset , const Sequence<T> &seq ) override {
         MutableArraySequence<T>* result = new MutableArraySequence<T>(*this);
         if( MyAbs(index)>result->GetLength()) throw std::invalid_argument("");
@@ -171,21 +181,9 @@ private:
         const ImmutableArraySequence<T>* result = new const ImmutableArraySequence<T>(*this);
         return result;
     }
-    ImmutableArraySequence<T>* appendWithoutInstance(const T& item) {
-        ImmutableArraySequence<T>* result=this;
-        result->data->Resize(data->GetLength()+1,0);
-        (*(result->data))[data->GetLength()-1] = item;
-        return result;
-    }
+
 public:
     using ArraySequence<T>::ArraySequence;
-
-    ImmutableArraySequence (const  ImmutableArraySequence<T>& seq ){
-        this->data = new DynamicArray<T>(seq.GetLength());
-        for(int i =0;i<seq.GetLength();i++){
-            this->data->Set(seq.Get(i),i);
-        }
-    }
 
     ImmutableArraySequence<T>* Slice(int index, int offset , const Sequence<T> &seq ) override {
         MutableArraySequence<T>* result = new MutableArraySequence<T>(*this);

@@ -26,7 +26,8 @@ private:
 public:
     LinkedList (){};
     LinkedList ( int count){
-        if(count<0) throw std::invalid_argument("invalid argument in constuctor");
+        if(count<0) 
+            throw std::invalid_argument("invalid argument in constuctor");
         this->size=count;
         for(int i=0;i<count-1;i++){
             if(i==0){
@@ -41,13 +42,15 @@ public:
         }
     }
     LinkedList (T* items, int count){
-        if(count<0) throw std::invalid_argument("invalid argument in constuctor");
+        if(count<0) 
+            throw std::invalid_argument("invalid argument in constuctor");
         for(int i=0;i<count;i++){
             Append(items[i]);
         }
     }
     LinkedList (const T& elemFill, int count){
-        if(count<0) throw std::invalid_argument("invalid argument in constuctor");
+        if(count<0) 
+            throw std::invalid_argument("invalid argument in constuctor");
         for(int i=0;i<count;i++){
             Append(elemFill);
         }
@@ -62,19 +65,18 @@ public:
     }
 
     T GetFirst() const {
-        if(head==nullptr){
+        if(head==nullptr)
             throw std::out_of_range("Getter call in empty collection");
-        }
         return head->data;
     }
     T GetLast() const{
-        if(tail==nullptr){
+        if(tail==nullptr)
             throw std::out_of_range("Getter call in empty collection");
-        }
         return tail->data;
     }
     T Get(int index) const {
-        if(index<0||index>=size) throw std::out_of_range("Getter call with wrong index ");
+        if(index<0||index>=size) 
+            throw std::out_of_range("Getter call with wrong index ");
         Node<T>* current = head;
         for(int i=0;i<index;i++){
             current=current->next;
@@ -82,7 +84,8 @@ public:
         return current->data;
     }
     void Set(const T& value ,int index)  {
-        if(index<0||index>=size) throw std::out_of_range("Setter call with wrong index ");
+        if(index<0||index>=size) 
+            throw std::out_of_range("Setter call with wrong index ");
         Node<T>* current = head;
         for(int i=0;i<index;i++){
             current=current->next;
@@ -91,8 +94,10 @@ public:
     }
 
     LinkedList<T>* GetSubList(int startIndex, int endIndex){
-        if(endIndex>=size) throw std::out_of_range("Invalid index in SubList function");
-        if(startIndex<0||endIndex<0||endIndex<startIndex) throw std::invalid_argument("Invalid input in SubList function");
+        if(endIndex>=size)  
+            throw std::out_of_range("Invalid index in SubList function");
+        if(startIndex<0||endIndex<0||endIndex<startIndex) 
+            throw std::invalid_argument("Invalid input in SubList function");
         LinkedList<T>* buf = new LinkedList();
         Node<T>* current = head;
         int i = 0 ;
@@ -108,7 +113,7 @@ public:
 
     int GetLength() const{ return size; }
 
-    void Append(const T& item){
+    void Append(const T& item){     //вернуть this
         if(tail==nullptr){
             Node<T>* buf = new Node<T>(item);
             head=buf;
@@ -135,7 +140,8 @@ public:
     }
 
     void InsertAt(const T& item, int index){
-        if(index>size||index<0) throw std::out_of_range("Invalid index in insert function");
+        if(index>size||index<0) 
+            throw std::out_of_range("Invalid index in insert function");
         Node<T>* current=head;
         for(int i=0;i<index-1;i++){
             current=current->next;
@@ -158,7 +164,8 @@ public:
     }
 
    void RemoveAt(int index){
-        if(index>=size||index<0) throw std::out_of_range("Invalid index in insert function");
+        if(index>=size||index<0) 
+            throw std::out_of_range("Invalid index in insert function");
         Node<T>* current=head;
         if(size==0){
             delete head;
@@ -205,8 +212,10 @@ public:
     }
 
     T& operator[](int index){
-        if(index<0) throw std::invalid_argument("Invalid input in get operator");
-        if(index>=size) throw std::out_of_range("Invalid index in get operator");
+        if(index<0) 
+            throw std::invalid_argument("Invalid input in get operator");
+        if(index>=size) 
+            throw std::out_of_range("Invalid index in get operator");
         Node<T>* current = head;
         for(int i=0;i<index;i++){
             current=current->next;
@@ -232,7 +241,8 @@ public:
     }
 
     bool operator==(const LinkedList<T>& list){
-        if(list.size!=size) return false;
+        if(list.size!=size) 
+            return false;
         Node<T>* current1= list.head;
         Node<T>* current2 = head;
         while(current1!=nullptr){

@@ -21,11 +21,9 @@ public:
     virtual T& operator[](int index) = 0 ;
 
     void PrintSequence() const {
-        std::cout<<std::endl;
         for(int i =0;i<this->GetLength();i++){
             std::cout<<this->Get(i)<<" ";
         }
-        std::cout<<std::endl;
     }
 
     bool operator==(const Sequence<T> &seq){
