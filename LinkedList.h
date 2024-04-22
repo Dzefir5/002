@@ -226,19 +226,6 @@ public:
         swap(list);
         return *this;
     }   
-    LinkedList<T>& operator+=(const LinkedList<T>& list2){ /// += FIRST
-        Node<T>* current = list2.head;
-        while(current!=nullptr){
-            Append(current->data);
-        }
-        size+=list2.size;
-    } 
-     
-    LinkedList<T> operator+(const LinkedList<T>& list){  /// += FIRST
-        LinkedList<T> result = (*this);
-        result+=list;
-        return result;
-    }
 
     bool operator==(const LinkedList<T>& list){
         if(list.size!=size) 
