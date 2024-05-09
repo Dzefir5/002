@@ -4,6 +4,7 @@
 #include "DynamicArray.h"
 #include "Sequence.h"
 #include "MyAbs.h"
+#include "MySwap.h"
 
 template <typename T>
 class ArraySequence : public Sequence<T>{
@@ -11,6 +12,9 @@ protected:
     DynamicArray<T>* data;
     virtual ArraySequence<T>* Instance()=0 ;
     virtual const ArraySequence<T>* Instance() const =0;
+    void swap(ArraySequence& toSwap){
+        MySwap(data,toSwap.data);
+    }
 
 public:
     ArraySequence (){ 
@@ -168,6 +172,13 @@ public:
         MutableArraySequence<T>* result = new MutableArraySequence<T>(&(*(this->data))[startIndex],endIndex-startIndex+1);
         return result;
     }
+
+    MutableArraySequence<T>& operator=(const Sequence<T> &seq){
+        MutableArraySequence<T> result (seq);
+        swap(*this,result);
+        return *this
+    }
+    
 };
 
 template<typename T>
@@ -237,6 +248,12 @@ public:
         if(endIndex>=this->GetLength()) throw std::out_of_range("");
         ImmutableArraySequence<T>* result = new ImmutableArraySequence<T>(&(*(this->data))[startIndex],endIndex-startIndex+1);
         return result;
+    }
+
+    ImmutableArraySequence<T>& operator=(const Sequence<T> &seq){
+        ImmutableArraySequence<T> result (seq);
+        swap(*this,result);
+        return *this
     }
 };
 

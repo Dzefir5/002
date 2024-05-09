@@ -4,6 +4,7 @@
 #include "LinkedList.h"
 #include "Sequence.h"
 #include "MyAbs.h"
+#include "MySwap.h"
 
 
 
@@ -19,6 +20,10 @@ protected:
         result->data->Append(item);
         return result;
     }
+    void swap(ListSequence& toSwap){
+        MySwap(data,toSwap.data);
+    }
+
 public:
     ListSequence (){
         this->data=new LinkedList<T>();
@@ -173,6 +178,12 @@ public:
         MutableListSequence<T>* result = new MutableListSequence<T>(this->data->GetSubList(startIndex,endIndex));
         return result;
     }
+
+    MutableListSequence<T>& operator=(const Sequence<T> &seq){
+        MutableListSequence<T> result (seq);
+        swap(*this,result);
+        return *this
+    }
 };
 
 
@@ -236,5 +247,11 @@ public:
         if(endIndex>=this->data->GetLength()) throw std::out_of_range("");
         ImmutableListSequence<T>* result = new ImmutableListSequence<T>(this->data->GetSubList(startIndex,endIndex));
         return result;
+    }
+
+    ImmutableListSequence<T>& operator=(const Sequence<T> &seq){
+        ImmutableListSequence<T> result (seq);
+        swap(*this,result);
+        return *this
     }
 };
